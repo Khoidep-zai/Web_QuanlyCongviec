@@ -1,4 +1,4 @@
-# Task Manager MERN - Do an cuoi ky Lap trinh Web Nang cao
+# TODO LIST - Do an cuoi ky Lap trinh Web Nang cao
 
 Ung dung quan ly cong viec ca nhan theo kien truc MERN:
 - MongoDB: luu tru du lieu
@@ -18,8 +18,10 @@ He thong gom 3 lop chinh:
 Luong tong quat:
 
 ```text
-Trinh duyet -> React UI -> Axios -> Express API -> Mongoose -> MongoDB
-                                             <- JSON response <-
+Trinh duyet -> React UI -> Axios -> Express API -> Mongoose -> MongoDB -> JSON response
+      ^                                                                          |
+      |                                                                          |
+      --------------------------------------------------------------------------<
 ```
 
 ## 2) Cac tinh nang chinh
