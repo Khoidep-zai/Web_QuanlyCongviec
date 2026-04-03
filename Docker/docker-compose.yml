@@ -1,5 +1,3 @@
-version: '3.8'
-
 # ================================================================
 # CÁCH DÙNG:
 #   Chạy thường:   docker compose up --build
@@ -28,7 +26,7 @@ services:
       - mongodb_data:/data/db
       - mongodb_config:/data/configdb
       # Script khởi tạo collections & indexes (chỉ chạy lần đầu)
-      - ../server/DB/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ../src/server/DB/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     networks:
       - taskmanager-network
     healthcheck:
@@ -43,7 +41,7 @@ services:
   # ============================================
   backend:
     build:
-      context: ../backend        # Dockerfile nằm trong backend/
+      context: ../src/backend    # Dockerfile nằm trong src/backend/
       dockerfile: Dockerfile
     container_name: taskmanager-backend
     restart: unless-stopped
@@ -74,7 +72,7 @@ services:
   # ============================================
   frontend:
     build:
-      context: ../frontend       # Dockerfile nằm trong frontend/
+      context: ../src/frontend   # Dockerfile nằm trong src/frontend/
       dockerfile: Dockerfile
       args:
         # /api → nginx proxy → backend container (không cần biết port backend)
