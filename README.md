@@ -1,4 +1,4 @@
-# Task Manager MERN - Do an cuoi ky Lap trinh Web nang cao
+# Task Manager MERN - Do an cuoi ky Lap trinh Web Nang cao
 
 Ung dung quan ly cong viec ca nhan theo kien truc MERN:
 - MongoDB: luu tru du lieu
@@ -21,11 +21,112 @@ He thong gom 3 thanh phan chinh:
 Luong xu ly tong quat:
 
 ```text
-Browser -> React UI -> Axios -> Express API -> Mongoose -> MongoDB
-Browser <- React UI <- JSON <- Express API <- Mongoose <- MongoDB
+Trinh duyet -> React UI -> Axios -> Express API -> Mongoose -> MongoDB
+                                             <- JSON response <-
 ```
 
-## 2. Cau truc du an
+## 2) Cac tinh nang chinh
+
+- Dang ky, dang nhap, xac thuc JWT
+- Quan ly cong viec CRUD
+- Danh muc cong viec theo user
+- Priority, status, due date, tag
+- Subtask va danh dau hoan thanh
+- Tim kiem, loc, sap xep, phan trang
+- Thong ke tong quan task
+- Deadline alerts
+- Weekly timetable
+- Admin dashboard (thong ke toan he thong, quan tri user/task/category)
+
+## 3) Huong dan chay web
+
+## Cach A: Chay local
+
+Yeu cau:
+- Node.js >= 18
+- npm
+- MongoDB Atlas (hoac sua backend de tro sang local MongoDB)
+
+Cai dat:
+
+```bash
+cd src/backend
+npm install
+
+cd ../frontend
+npm install
+```
+
+Chay backend:
+
+```bash
+cd src/backend
+npm start
+```
+
+Chay frontend:
+
+```bash
+cd src/frontend
+npm start
+```
+
+Truy cap:
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:5000
+
+Tai khoan admin mac dinh (duoc tao/duy tri khi backend khoi dong):
+- username: admin
+- password: admin123
+
+## Cach B: Chay bang Docker Compose
+
+```bash
+cd Docker
+docker compose up --build
+```
+
+Them Mongo Express:
+
+```bash
+docker compose --profile dev up --build
+```
+
+Truy cap:
+- App: http://localhost:3000
+- Mongo Express: http://localhost:8081
+
+## 4) Kiem chung tinh trang chay (da thuc hien)
+
+Da kiem chung trong workspace ngay 2026-03-18:
+- Backend ket noi MongoDB thanh cong va listen http://localhost:5000
+- Frontend dev server compile thanh cong tai http://localhost:3000
+
+## 5) Bug da fix trong lan cap nhat nay
+
+### Loi da sua
+
+Frontend xu ly sai payload cua API dang nhap/dang ky:
+- Backend tra ve dang:
+  - success
+  - message
+  - data: { user fields + token }
+- AuthContext truoc day doc nham response.data.token thay vi response.data.data.token
+
+### Tac dong
+
+- Dang nhap thanh cong nhung localStorage co the luu sai du lieu
+- Trang thai da dang nhap co the khong on dinh
+- Phan quyen admin co the sai
+
+### Cach da fix
+
+Da dong bo parser trong AuthContext de lay dung object data tu response.
+
+File da sua:
+- src/frontend/src/context/AuthContext.js
+
+## 6) Cau truc thu muc va giai thich
 
 ```text
 .
