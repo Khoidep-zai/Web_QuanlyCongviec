@@ -3,6 +3,15 @@
   command = "npm run build"
   publish = "build"
 
+# Uncomment this block and replace the domain when you deploy backend separately.
+# This forwards Netlify /api/* calls to your backend, avoiding frontend CORS issues.
+#
+# [[redirects]]
+#   from = "/api/*"
+#   to = "https://your-backend-domain.example.com/api/:splat"
+#   status = 200
+#   force = true
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

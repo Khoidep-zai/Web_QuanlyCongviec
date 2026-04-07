@@ -292,6 +292,9 @@ Bien moi truong can set tren Netlify:
 
 Neu khong set REACT_APP_API_URL, frontend production se mac dinh goi /api tren cung domain.
 
+Tuy chon khac: ban co the dung Netlify redirect proxy `/api/*` (template da co trong `netlify.toml`).
+Chi can bo comment block do va thay domain backend that truoc khi deploy.
+
 ### Khac phuc loi "dang nhap/dang ky luon that bai"
 
 Neu tren Netlify ban thay dang nhap hoac dang ky luon that bai, thu tu kiem tra nhanh:
