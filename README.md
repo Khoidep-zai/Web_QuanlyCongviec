@@ -110,6 +110,10 @@ Truy cap:
 Ghi chu:
 - Docker se chay 3 container rieng (mongodb, backend, frontend) trong cung 1 stack ten `todo-list`.
 - Khong can (va khong nen) gop ca 3 service vao 1 container duy nhat.
+- Ten container de de nhin tren Docker Desktop:
+    - todo-list-01-db
+    - todo-list-02-api
+    - todo-list-03-web
 
 ## 4) Kiem chung tinh trang chay (da thuc hien)
 
