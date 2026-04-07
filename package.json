@@ -1,0 +1,14 @@
+{
+  "name": "task-manager-fullstack",
+  "version": "1.0.0",
+  "description": "Đồ án cuối kì - Lập trình Web Nâng cao (MERN Stack)",
+  "scripts": {
+    "install-all": "npm install --prefix src/backend && npm install --prefix src/frontend",
+    "dev": "concurrently --kill-others-on-fail --names \"BACKEND,FRONTEND\" --prefix-colors \"cyan,magenta\" \"npm run dev --prefix src/backend\" \"npm start --prefix src/frontend\"",
+    "backend": "npm run dev --prefix src/backend",
+    "frontend": "npm start --prefix src/frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

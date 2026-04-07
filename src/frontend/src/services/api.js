@@ -17,6 +17,9 @@
 
 import axios from 'axios';
 
+const defaultApiBaseUrl =
+  process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api';
+
 // ===== TẠO AXIOS INSTANCE =====
 /**
  * Tạo instance Axios với cấu hình mặc định:
@@ -26,7 +29,7 @@ import axios from 'axios';
 const api = axios.create({
   // Development: gọi thẳng localhost:5000 (CRA proxy package.json)
   // Docker/Production: dùng /api → nginx proxy chuyển sang backend container
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
+  baseURL: process.env.REACT_APP_API_URL || defaultApiBaseUrl,
   headers: {
     'Content-Type': 'application/json',
   },

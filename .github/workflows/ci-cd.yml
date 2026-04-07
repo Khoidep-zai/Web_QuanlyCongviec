@@ -55,31 +55,31 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: ${{ matrix.test-type }}/package-lock.json
+          cache-dependency-path: src/${{ matrix.test-type }}/package-lock.json
       
       - name: Install Backend Dependencies
         if: matrix.test-type == 'backend'
-        working-directory: ./backend
+        working-directory: ./src/backend
         run: npm ci
       
       - name: Install Frontend Dependencies
         if: matrix.test-type == 'frontend'
-        working-directory: ./frontend
+        working-directory: ./src/frontend
         run: npm ci
       
       - name: Run Backend Linting
         if: matrix.test-type == 'backend'
-        working-directory: ./backend
+        working-directory: ./src/backend
         run: npm run lint
       
       - name: Run Frontend Linting
         if: matrix.test-type == 'frontend'
-        working-directory: ./frontend
+        working-directory: ./src/frontend
         run: npm run lint
       
       - name: Run Backend Tests
         if: matrix.test-type == 'backend'
-        working-directory: ./backend
+        working-directory: ./src/backend
         env:
           NODE_ENV: test
           MONGODB_URI: mongodb://admin:password@localhost:27017/taskmanager_test?authSource=admin
@@ -91,24 +91,24 @@ jobs:
       
       - name: Run Frontend Tests
         if: matrix.test-type == 'frontend'
-        working-directory: ./frontend
+        working-directory: ./src/frontend
         run: npm run test:coverage
       
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
-          files: ./${{ matrix.test-type }}/coverage/lcov.info
+          files: ./src/${{ matrix.test-type }}/coverage/lcov.info
           flags: ${{ matrix.test-type }}
           name: ${{ matrix.test-type }}-coverage
       
       - name: Build Backend
         if: matrix.test-type == 'backend'
-        working-directory: ./backend
+        working-directory: ./src/backend
         run: npm run build
       
       - name: Build Frontend
         if: matrix.test-type == 'frontend'
-        working-directory: ./frontend
+        working-directory: ./src/frontend
         env:
           REACT_APP_API_URL: http://localhost:5000/api
           REACT_APP_SOCKET_URL: http://localhost:5000
@@ -126,12 +126,12 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Run npm audit (Backend)
-        working-directory: ./backend
+        working-directory: ./src/backend
         run: npm audit --production
         continue-on-error: true
       
       - name: Run npm audit (Frontend)
-        working-directory: ./frontend
+        working-directory: ./src/frontend
         run: npm audit --production
         continue-on-error: true
       
@@ -180,8 +180,8 @@ jobs:
       - name: Build and push Backend image
         uses: docker/build-push-action@v5
         with:
-          context: ./backend
-          file: ./backend/Dockerfile
+          context: ./src/backend
+          file: ./src/backend/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/taskmanager-backend:${{ github.ref_name }}
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/taskmanager-backend:buildcache
@@ -190,8 +190,8 @@ jobs:
       - name: Build and push Frontend image
         uses: docker/build-push-action@v5
         with:
-          context: ./frontend
-          file: ./frontend/Dockerfile
+          context: ./src/frontend
+          file: ./src/frontend/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/taskmanager-frontend:${{ github.ref_name }}
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/taskmanager-frontend:buildcache
@@ -259,7 +259,7 @@ jobs:
             docker-compose exec -T backend npm run migrate
       
       - name: Run E2E Tests
-        working-directory: ./frontend
+        working-directory: ./src/frontend
         env:
           CYPRESS_BASE_URL: https://staging.taskmanager.example.com
         run: |
@@ -298,7 +298,7 @@ jobs:
           key: ${{ secrets.PROD_SERVER_SSH_KEY }}
           script: |
             cd /opt/taskmanager
-            ./scripts/backup-database.sh
+            ./ops/scripts/backup-database.sh
       
       - name: Deploy to Production (Blue-Green)
         uses: appleboy/ssh-action@master
@@ -308,7 +308,7 @@ jobs:
           key: ${{ secrets.PROD_SERVER_SSH_KEY }}
           script: |
             cd /opt/taskmanager
-            ./scripts/blue-green-deploy.sh
+            ./ops/scripts/blue-green-deploy.sh
       
       - name: Run Health Checks
         run: |
@@ -333,7 +333,7 @@ jobs:
           key: ${{ secrets.PROD_SERVER_SSH_KEY }}
           script: |
             cd /opt/taskmanager
-            ./scripts/rollback.sh
+            ./ops/scripts/rollback.sh
       
       - name: Create GitHub Release
         if: success()

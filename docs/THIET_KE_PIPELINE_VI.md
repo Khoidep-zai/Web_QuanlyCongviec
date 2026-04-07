@@ -175,31 +175,31 @@ jobs:
           cache: 'npm'
       
       - name: Cài đặt Thư viện Backend
-        working-directory: ./backend
+        working-directory: ./src/backend
         run: npm ci
       
       - name: Cài đặt Thư viện Frontend
-        working-directory: ./frontend
+        working-directory: ./src/frontend
         run: npm ci
       
       - name: Chạy Linting
         run: |
-          cd backend && npm run lint
+          cd src/backend && npm run lint
           cd ../frontend && npm run lint
       
       - name: Chạy Kiểm thử Backend
-        working-directory: ./backend
+        working-directory: ./src/backend
         env:
           MONGODB_URI: mongodb://admin:password@localhost:27017/test?authSource=admin
           JWT_SECRET: test_secret
         run: npm run test:coverage
       
       - name: Chạy Kiểm thử Frontend
-        working-directory: ./frontend
+        working-directory: ./src/frontend
         run: npm run test:coverage
       
       - name: Build Frontend
-        working-directory: ./frontend
+        working-directory: ./src/frontend
         run: npm run build
       
       - name: Upload Báo cáo Coverage
@@ -215,8 +215,8 @@ jobs:
       
       - name: Build và Đẩy Docker Images
         run: |
-          docker build -t task-manager-backend:dev ./backend
-          docker build -t task-manager-frontend:dev ./frontend
+          docker build -t task-manager-backend:dev ./src/backend
+          docker build -t task-manager-frontend:dev ./src/frontend
           # Đẩy lên registry
       
       - name: Triển khai lên Development
@@ -789,7 +789,7 @@ server {
 }
 ```
 
-#### **docker-compose.yml** (`Docker/docker-compose.yml`)
+#### **docker-compose.yml** (`docker-compose.yml`)
 ```yaml
 version: '3.8'
 
@@ -798,12 +798,12 @@ services:
     image: mongo:6.0
     volumes:
       - mongodb_data:/data/db
-      - ../server/DB/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./ops/mongodb/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
 
   backend:          # Node.js Express API
-    build: { context: ../backend }
+    build: { context: ./src/backend }
     environment:
       MONGODB_URI: mongodb://admin:adminpassword@mongodb:27017/taskmanager?authSource=admin
       JWT_SECRET: ${JWT_SECRET}
@@ -814,7 +814,7 @@ services:
 
   frontend:         # React build → Nginx
     build:
-      context: ../frontend
+      context: ./src/frontend
       args: { REACT_APP_API_URL: /api }   # /api → nginx proxy → backend
     ports:
       - "3000:80"
@@ -833,8 +833,6 @@ volumes:
 
 **Lệnh Docker:**
 ```bash
-cd Docker
-
 # Chạy thường (build + start)
 docker compose up --build
 

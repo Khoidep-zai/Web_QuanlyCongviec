@@ -82,7 +82,6 @@ Tai khoan admin mac dinh (duoc tao/duy tri khi backend khoi dong):
 ## Cach B: Chay bang Docker Compose
 
 ```bash
-cd Docker
 docker compose up --build
 ```
 
@@ -90,6 +89,12 @@ Them Mongo Express:
 
 ```bash
 docker compose --profile dev up --build
+```
+
+Neu can file env mau cho Docker, su dung:
+
+```bash
+cp ops/.env.docker.example .env
 ```
 
 Truy cap:
@@ -131,13 +136,22 @@ File da sua:
 ```text
 .
 ├─ README.md
-├─ THIET_KE_PIPELINE_VI.md
-├─ Docker/
-│  └─ docker-compose.yml
-├─ scripts/
-│  ├─ backup-database.sh
-│  ├─ blue-green-deploy.sh
-│  └─ rollback.sh
+├─ package.json
+├─ package-lock.json
+├─ docker-compose.yml
+├─ netlify.toml
+├─ .env.example
+├─ docs/
+│  └─ THIET_KE_PIPELINE_VI.md
+├─ ops/
+│  ├─ .env.docker.example
+│  ├─ mongodb/
+│  │  ├─ database-schema.js
+│  │  └─ init-mongo.js
+│  └─ scripts/
+│     ├─ backup-database.sh
+│     ├─ blue-green-deploy.sh
+│     └─ rollback.sh
 └─ src/
    ├─ backend/
    │  ├─ Dockerfile
@@ -153,26 +167,22 @@ File da sua:
    │  ├─ nginx.conf
    │  ├─ package.json
    │  ├─ public/
-   │  ├─ build/
+    │  │  └─ _redirects
+    │  ├─ build/
    │  └─ src/
    │     ├─ components/
    │     ├─ context/
    │     ├─ pages/
    │     └─ services/
-   └─ server/
-      ├─ package.json
-      ├─ start.bat
-      └─ DB/
-         ├─ database-schema.js
-         └─ init-mongo.js
 ```
 
 Y nghia nhanh:
 - src/backend: API va business logic
 - src/frontend: giao dien va giao tiep API
-- src/server: script ho tro khoi tao du lieu va start nhanh
-- Docker: cau hinh container cho mongodb, backend, frontend
-- scripts: script van hanh tren moi truong production
+- docker-compose.yml: cau hinh container cho mongodb, backend, frontend
+- ops/mongodb: script khoi tao schema/index cho MongoDB
+- ops/scripts: script van hanh production (backup/deploy/rollback)
+- docs: tai lieu thiet ke va pipeline
 
 ## 3. Chay local (khong Docker)
 
@@ -226,25 +236,18 @@ Truy cap:
 
 ## 4. Chay bang Docker
 
-File compose nam o: Docker/docker-compose.yml
+File compose nam o: docker-compose.yml (thu muc goc)
 
 ### 4.1 Chay nhanh
 
 ```bash
-cd Docker
 docker compose up --build
-```
-
-Hoac chay tu thu muc goc:
-
-```bash
-docker compose -f Docker/docker-compose.yml up --build
 ```
 
 ### 4.2 Chay kem Mongo Express (profile dev)
 
 ```bash
-docker compose -f Docker/docker-compose.yml --profile dev up --build
+docker compose --profile dev up --build
 ```
 
 Truy cap:
@@ -254,9 +257,25 @@ Truy cap:
 ### 4.3 Duong dan Docker da duoc chinh lai
 
 Trong compose da cap nhat dung voi cau truc src hien tai:
-- Backend build context: ../src/backend
-- Frontend build context: ../src/frontend
-- Mongo init script mount: ../src/server/DB/init-mongo.js
+- Backend build context: ./src/backend
+- Frontend build context: ./src/frontend
+- Mongo init script mount: ./ops/mongodb/init-mongo.js
+
+## 4.4 Deploy Frontend len Netlify (khong bi 404)
+
+Da them san 2 file de tranh loi "Page not found" khi refresh route:
+- netlify.toml (build + publish + redirect)
+- src/frontend/public/_redirects (SPA fallback)
+
+Cau hinh Netlify de deploy frontend:
+- Base directory: src/frontend
+- Build command: npm run build
+- Publish directory: build
+
+Bien moi truong can set tren Netlify:
+- REACT_APP_API_URL=https://<domain-backend-cua-ban>/api
+
+Neu khong set REACT_APP_API_URL, frontend production se mac dinh goi /api tren cung domain.
 
 ## 5. Luong hoat dong chi tiet
 
