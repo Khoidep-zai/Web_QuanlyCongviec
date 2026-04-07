@@ -6,7 +6,10 @@
     "install-all": "npm install --prefix src/backend && npm install --prefix src/frontend",
     "dev": "concurrently --kill-others-on-fail --names \"BACKEND,FRONTEND\" --prefix-colors \"cyan,magenta\" \"npm run dev --prefix src/backend\" \"npm start --prefix src/frontend\"",
     "backend": "npm run dev --prefix src/backend",
-    "frontend": "npm start --prefix src/frontend"
+    "frontend": "npm start --prefix src/frontend",
+    "docker:up": "docker compose -f docker/docker-compose.yml up --build -d",
+    "docker:down": "docker compose -f docker/docker-compose.yml down",
+    "docker:logs": "docker compose -f docker/docker-compose.yml logs -f"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

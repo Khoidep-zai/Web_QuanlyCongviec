@@ -85,6 +85,12 @@ Tai khoan admin mac dinh (duoc tao/duy tri khi backend khoi dong):
 docker compose -f docker/docker-compose.yml up --build
 ```
 
+Hoac chay 1 lenh tu package scripts:
+
+```bash
+npm run docker:up
+```
+
 Them Mongo Express:
 
 ```bash
@@ -100,6 +106,10 @@ cp docker/.env.example docker/.env
 Truy cap:
 - App: http://localhost:3000
 - Mongo Express: http://localhost:8081
+
+Ghi chu:
+- Docker se chay 3 container rieng (mongodb, backend, frontend) trong cung 1 stack ten `todo-list`.
+- Khong can (va khong nen) gop ca 3 service vao 1 container duy nhat.
 
 ## 4) Kiem chung tinh trang chay (da thuc hien)
 
