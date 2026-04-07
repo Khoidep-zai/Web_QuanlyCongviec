@@ -277,6 +277,15 @@ Bien moi truong can set tren Netlify:
 
 Neu khong set REACT_APP_API_URL, frontend production se mac dinh goi /api tren cung domain.
 
+### Khac phuc loi "dang nhap/dang ky luon that bai"
+
+Neu tren Netlify ban thay dang nhap hoac dang ky luon that bai, thu tu kiem tra nhanh:
+- Dam bao backend da deploy va truy cap duoc bang HTTPS.
+- Trong Netlify, set `REACT_APP_API_URL=https://<domain-backend>/api`.
+- Redeploy lai site sau khi sua env.
+- Mo tab Network tren browser va kiem tra request `/auth/login`:
+    - Neu URL dang la `https://<domain-netlify>/api/...` va tra ve HTML (`text/html`), nghia la frontend dang goi nham vao chinh Netlify site thay vi backend.
+
 ## 5. Luong hoat dong chi tiet
 
 ## 5.1 Login flow

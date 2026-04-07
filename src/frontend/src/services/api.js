@@ -20,6 +20,13 @@ import axios from 'axios';
 const defaultApiBaseUrl =
   process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api';
 
+if (process.env.NODE_ENV === 'production' && !process.env.REACT_APP_API_URL) {
+  // Helpful warning for static deployments (e.g., Netlify) where /api is not proxied.
+  console.warn(
+    'REACT_APP_API_URL chưa được cấu hình. Frontend sẽ dùng /api mặc định; hãy chắc chắn có reverse proxy hoặc set biến môi trường trên nền tảng deploy.'
+  );
+}
+
 // ===== TẠO AXIOS INSTANCE =====
 /**
  * Tạo instance Axios với cấu hình mặc định:

@@ -22,6 +22,34 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import authService from '../services/authService';
 
+const normalizeAuthErrorMessage = (err, fallback) => {
+  if (err?.response?.data?.message) {
+    return err.response.data.message;
+  }
+
+  if (err?.message && err.message !== 'Network Error') {
+    return err.message;
+  }
+
+  if (err?.message === 'Network Error') {
+    return 'Không kết nối được API. Hãy kiểm tra backend đang chạy và biến REACT_APP_API_URL đã cấu hình đúng chưa.';
+  }
+
+  return fallback;
+};
+
+const extractAuthPayload = (response, actionName) => {
+  const payload = response?.data || response;
+
+  if (!payload || typeof payload !== 'object') {
+    throw new Error(
+      `${actionName} thất bại: API trả về dữ liệu không hợp lệ. Kiểm tra REACT_APP_API_URL hoặc cấu hình proxy /api.`
+    );
+  }
+
+  return payload;
+};
+
 // ===== TẠO CONTEXT =====
 // Context là "kho chứa" dữ liệu dùng chung
 const AuthContext = createContext(null);
@@ -56,7 +84,8 @@ export const AuthProvider = ({ children }) => {
         try {
           // Gọi API kiểm tra token còn hợp lệ không
           const response = await authService.getMe();
-          setUser(response.data);
+          const payload = extractAuthPayload(response, 'Xác thực phiên');
+          setUser(payload.data || null);
         } catch (err) {
           // Token hết hạn hoặc không hợp lệ → xóa
           localStorage.removeItem('token');
@@ -89,7 +118,14 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       const response = await authService.register(userData);
-      const authData = response.data;
+      const payload = extractAuthPayload(response, 'Đăng ký');
+      const authData = payload.data;
+
+      if (!authData?.token) {
+        throw new Error(
+          'Đăng ký không nhận được token. Trên Netlify hãy đặt REACT_APP_API_URL trỏ tới backend của bạn.'
+        );
+      }
       
       // Lưu token và user vào localStorage
       localStorage.setItem('token', authData.token);
@@ -100,7 +136,7 @@ export const AuthProvider = ({ children }) => {
       
       return response;
     } catch (err) {
-      const message = err.response?.data?.message || 'Đăng ký thất bại';
+      const message = normalizeAuthErrorMessage(err, 'Đăng ký thất bại');
       setError(message);
       throw new Error(message);
     }
@@ -111,7 +147,14 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       const response = await authService.login(credentials);
-      const authData = response.data;
+      const payload = extractAuthPayload(response, 'Đăng nhập');
+      const authData = payload.data;
+
+      if (!authData?.token) {
+        throw new Error(
+          'Đăng nhập không nhận được token. Trên Netlify hãy đặt REACT_APP_API_URL trỏ tới backend của bạn.'
+        );
+      }
       
       // Lưu token và user vào localStorage
       localStorage.setItem('token', authData.token);
@@ -122,7 +165,7 @@ export const AuthProvider = ({ children }) => {
       
       return response;
     } catch (err) {
-      const message = err.response?.data?.message || 'Đăng nhập thất bại';
+      const message = normalizeAuthErrorMessage(err, 'Đăng nhập thất bại');
       setError(message);
       throw new Error(message);
     }
