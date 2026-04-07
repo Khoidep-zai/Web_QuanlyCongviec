@@ -22,13 +22,19 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import authService from '../services/authService';
 
+const isNetlifyHost =
+  typeof window !== 'undefined' && window.location.hostname.includes('netlify.app');
+
 const normalizeAuthErrorMessage = (err, fallback) => {
   const statusCode = err?.response?.status;
   const responseType = err?.response?.headers?.['content-type'] || '';
 
   if (statusCode === 404) {
     if (responseType.includes('text/html')) {
-      return 'API đăng nhập không tồn tại ở domain hiện tại. Trên Netlify, hãy cấu hình REACT_APP_API_URL trỏ tới backend của bạn rồi deploy lại.';
+      if (isNetlifyHost) {
+        return 'API đăng nhập không tồn tại ở domain hiện tại. Trên Netlify, hãy cấu hình REACT_APP_API_URL trỏ tới backend của bạn rồi deploy lại.';
+      }
+      return 'API đăng nhập không tồn tại ở domain hiện tại. Hãy kiểm tra lại cấu hình proxy /api hoặc REACT_APP_API_URL.';
     }
     return 'Không tìm thấy endpoint xác thực. Hãy kiểm tra lại REACT_APP_API_URL có đúng dạng https://<backend>/api hay chưa.';
   }
@@ -49,7 +55,14 @@ const normalizeAuthErrorMessage = (err, fallback) => {
 };
 
 const extractAuthPayload = (response, actionName) => {
-  const payload = response?.data || response;
+  const isAxiosResponseLike =
+    !!response &&
+    typeof response === 'object' &&
+    Object.prototype.hasOwnProperty.call(response, 'data') &&
+    Object.prototype.hasOwnProperty.call(response, 'status') &&
+    Object.prototype.hasOwnProperty.call(response, 'headers');
+
+  const payload = isAxiosResponseLike ? response.data : response;
 
   if (!payload || typeof payload !== 'object') {
     throw new Error(
@@ -58,6 +71,32 @@ const extractAuthPayload = (response, actionName) => {
   }
 
   return payload;
+};
+
+const extractAuthData = (payload, actionName) => {
+  if (payload?.data && typeof payload.data === 'object') {
+    return payload.data;
+  }
+
+  if (payload?.token) {
+    return payload;
+  }
+
+  throw new Error(
+    `${actionName} không nhận được token. Hãy kiểm tra lại API auth hoặc cấu hình REACT_APP_API_URL/proxy /api.`
+  );
+};
+
+const extractUserProfile = (payload) => {
+  if (payload?.data && typeof payload.data === 'object') {
+    return payload.data;
+  }
+
+  if (payload?._id || payload?.email || payload?.username) {
+    return payload;
+  }
+
+  return null;
 };
 
 // ===== TẠO CONTEXT =====
@@ -95,7 +134,7 @@ export const AuthProvider = ({ children }) => {
           // Gọi API kiểm tra token còn hợp lệ không
           const response = await authService.getMe();
           const payload = extractAuthPayload(response, 'Xác thực phiên');
-          setUser(payload.data || null);
+          setUser(extractUserProfile(payload));
         } catch (err) {
           // Token hết hạn hoặc không hợp lệ → xóa
           localStorage.removeItem('token');
@@ -129,13 +168,7 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       const response = await authService.register(userData);
       const payload = extractAuthPayload(response, 'Đăng ký');
-      const authData = payload.data;
-
-      if (!authData?.token) {
-        throw new Error(
-          'Đăng ký không nhận được token. Trên Netlify hãy đặt REACT_APP_API_URL trỏ tới backend của bạn.'
-        );
-      }
+      const authData = extractAuthData(payload, 'Đăng ký');
       
       // Lưu token và user vào localStorage
       localStorage.setItem('token', authData.token);
@@ -158,13 +191,7 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       const response = await authService.login(credentials);
       const payload = extractAuthPayload(response, 'Đăng nhập');
-      const authData = payload.data;
-
-      if (!authData?.token) {
-        throw new Error(
-          'Đăng nhập không nhận được token. Trên Netlify hãy đặt REACT_APP_API_URL trỏ tới backend của bạn.'
-        );
-      }
+      const authData = extractAuthData(payload, 'Đăng nhập');
       
       // Lưu token và user vào localStorage
       localStorage.setItem('token', authData.token);
