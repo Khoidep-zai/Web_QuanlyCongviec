@@ -9,6 +9,13 @@ const TimetableBoard = () => {
   const [weekStart, setWeekStart] = useState(null);
   const [weekTasks, setWeekTasks] = useState([]);
 
+  const formatLocalDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const getMonday = (date) => {
     const d = new Date(date);
     d.setHours(0, 0, 0, 0);
@@ -21,9 +28,13 @@ const TimetableBoard = () => {
   const loadWeek = async (baseDate) => {
     try {
       const monday = getMonday(baseDate);
-      const response = await taskService.getWeeklySchedule(monday.toISOString());
-      setWeekStart(new Date(response.data.weekStart));
-      setWeekTasks(response.data.tasks || []);
+      const response = await taskService.getWeeklySchedule(
+        formatLocalDate(monday),
+        new Date().getTimezoneOffset()
+      );
+      const payload = response?.data || response;
+      setWeekStart(monday);
+      setWeekTasks(payload?.tasks || []);
     } catch (error) {
       console.error('Lỗi tải thời khóa biểu:', error);
     }

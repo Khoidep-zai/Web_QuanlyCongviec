@@ -79,11 +79,12 @@ const taskService = {
 
   /**
    * Lấy dữ liệu thời khóa biểu tuần
-   * @param {string} weekStart - ISO date string đại diện tuần cần lấy
+   * @param {string} weekStart - Ngày đại diện tuần cần lấy (YYYY-MM-DD)
+   * @param {number} tzOffset - Timezone offset của client (phút)
    */
-  getWeeklySchedule: async (weekStart) => {
+  getWeeklySchedule: async (weekStart, tzOffset) => {
     const response = await api.get('/tasks/schedule/week', {
-      params: { weekStart },
+      params: { weekStart, tzOffset },
     });
     return response.data;
   },

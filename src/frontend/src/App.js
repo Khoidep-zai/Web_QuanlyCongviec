@@ -38,8 +38,9 @@ const AppContent = () => {
   if (loading) {
     return (
       <div className="loading-screen">
+        <div className="loading-mascot" aria-hidden="true">✏️</div>
         <div className="spinner-large"></div>
-        <p>Đang tải ứng dụng...</p>
+        <p>Đang chuẩn bị không gian làm việc cho bạn...</p>
       </div>
     );
   }

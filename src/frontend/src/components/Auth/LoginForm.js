@@ -56,7 +56,7 @@ const LoginForm = ({ onSwitch }) => {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <h2>📋 Quản Lý Công Việc</h2>
+          <h2>✏️ Quản Lý Công Việc</h2>
           <p>Đăng nhập để tiếp tục</p>
         </div>
 

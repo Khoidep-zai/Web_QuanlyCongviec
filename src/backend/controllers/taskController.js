@@ -451,21 +451,42 @@ const getTaskStats = async (req, res) => {
  */
 const getWeeklySchedule = async (req, res) => {
   try {
-    const baseDate = req.query.weekStart ? new Date(req.query.weekStart) : new Date();
+    const tzOffset = Number(req.query.tzOffset);
+    const hasValidOffset = Number.isFinite(tzOffset);
+    const weekStartQuery = req.query.weekStart;
 
-    if (Number.isNaN(baseDate.getTime())) {
-      return res.status(400).json({
-        success: false,
-        message: 'weekStart không hợp lệ',
-      });
+    let weekStart;
+
+    // Ưu tiên tính theo timezone của client để tránh lệch tuần khi backend chạy ở múi giờ khác.
+    if (
+      weekStartQuery &&
+      hasValidOffset &&
+      /^\d{4}-\d{2}-\d{2}$/.test(weekStartQuery)
+    ) {
+      const [year, month, dayOfMonth] = weekStartQuery.split('-').map((part) => Number(part));
+      const localDateUtc = new Date(Date.UTC(year, month - 1, dayOfMonth));
+      const dayOfWeek = localDateUtc.getUTCDay();
+      const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+      localDateUtc.setUTCDate(localDateUtc.getUTCDate() + diffToMonday);
+
+      weekStart = new Date(localDateUtc.getTime() + tzOffset * 60 * 1000);
+    } else {
+      const baseDate = weekStartQuery ? new Date(weekStartQuery) : new Date();
+
+      if (Number.isNaN(baseDate.getTime())) {
+        return res.status(400).json({
+          success: false,
+          message: 'weekStart không hợp lệ',
+        });
+      }
+
+      weekStart = new Date(baseDate);
+      weekStart.setHours(0, 0, 0, 0);
+
+      const day = weekStart.getDay();
+      const diffToMonday = day === 0 ? -6 : 1 - day;
+      weekStart.setDate(weekStart.getDate() + diffToMonday);
     }
-
-    const weekStart = new Date(baseDate);
-    weekStart.setHours(0, 0, 0, 0);
-
-    const day = weekStart.getDay();
-    const diffToMonday = day === 0 ? -6 : 1 - day;
-    weekStart.setDate(weekStart.getDate() + diffToMonday);
 
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekEnd.getDate() + 7);

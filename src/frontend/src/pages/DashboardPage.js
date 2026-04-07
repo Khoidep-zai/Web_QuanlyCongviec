@@ -39,6 +39,37 @@ const DashboardPage = () => {
     }
   };
 
+  const summaryCards = [
+    {
+      key: 'all',
+      label: 'Tổng công việc',
+      value: stats?.total || 0,
+      icon: '📚',
+      tone: 'yellow',
+    },
+    {
+      key: 'doing',
+      label: 'Đang làm',
+      value: stats?.byStatus?.['in-progress'] || 0,
+      icon: '🚀',
+      tone: 'blue',
+    },
+    {
+      key: 'done',
+      label: 'Hoàn thành',
+      value: stats?.byStatus?.completed || 0,
+      icon: '✅',
+      tone: 'green',
+    },
+    {
+      key: 'overdue',
+      label: 'Cần chú ý',
+      value: stats?.overdue || 0,
+      icon: '⏰',
+      tone: 'orange',
+    },
+  ];
+
   return (
     <div className="app-layout">
       {/* Thanh điều hướng trên cùng */}
@@ -48,6 +79,7 @@ const DashboardPage = () => {
         {/* Sidebar bên trái */}
         <Sidebar
           activeFilter={activeFilter}
+          categoryFilter={categoryFilter}
           onFilterChange={(filter) => {
             setActiveFilter(filter);
             if (filter !== 'all') setCategoryFilter(null);
@@ -61,6 +93,28 @@ const DashboardPage = () => {
 
         {/* Nội dung chính bên phải */}
         <main className="main-content">
+          <section className="dashboard-intro">
+            <div>
+              <h2>Tập trung vào bước nhỏ, hoàn thành việc lớn</h2>
+              <p>
+                Chọn một việc quan trọng, bắt đầu ngay 15 phút, rồi tiếp tục từng bước.
+              </p>
+            </div>
+            <span className="dashboard-intro-tag">Giao diện thân thiện cho mọi lứa tuổi</span>
+          </section>
+
+          <section className="dashboard-stats-grid" aria-label="Tổng quan nhanh">
+            {summaryCards.map((card) => (
+              <article key={card.key} className={`dashboard-stat-card tone-${card.tone}`}>
+                <span className="stat-emoji" aria-hidden="true">{card.icon}</span>
+                <div>
+                  <h3>{card.label}</h3>
+                  <p>{card.value}</p>
+                </div>
+              </article>
+            ))}
+          </section>
+
           <DeadlineAlerts />
           <TimetableBoard />
           <TaskList

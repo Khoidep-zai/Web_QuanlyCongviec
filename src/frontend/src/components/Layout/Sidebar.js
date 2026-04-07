@@ -12,7 +12,7 @@
 import React, { useState, useEffect } from 'react';
 import categoryService from '../../services/categoryService';
 
-const Sidebar = ({ activeFilter, onFilterChange, stats, onCategoryFilter }) => {
+const Sidebar = ({ activeFilter, categoryFilter, onFilterChange, stats, onCategoryFilter }) => {
   // State lưu danh sách danh mục
   const [categories, setCategories] = useState([]);
   // State quản lý form thêm danh mục
@@ -141,7 +141,7 @@ const Sidebar = ({ activeFilter, onFilterChange, stats, onCategoryFilter }) => {
         {/* Danh sách danh mục */}
         <ul className="category-list">
           <li
-            className={`category-item ${activeFilter === 'all' && !onCategoryFilter ? 'active' : ''}`}
+            className={`category-item ${activeFilter === 'all' && !categoryFilter ? 'active' : ''}`}
             onClick={() => { onFilterChange('all'); onCategoryFilter(null); }}
           >
             <span className="category-dot" style={{ backgroundColor: '#888' }}></span>
@@ -150,7 +150,7 @@ const Sidebar = ({ activeFilter, onFilterChange, stats, onCategoryFilter }) => {
           {categories.map((cat) => (
             <li
               key={cat._id}
-              className="category-item"
+              className={`category-item ${categoryFilter === cat._id ? 'active' : ''}`}
               onClick={() => onCategoryFilter(cat._id)}
             >
               <span className="category-dot" style={{ backgroundColor: cat.color }}></span>

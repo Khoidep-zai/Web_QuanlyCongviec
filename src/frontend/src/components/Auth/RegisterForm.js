@@ -74,7 +74,7 @@ const RegisterForm = ({ onSwitch }) => {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <h2>📋 Tạo Tài Khoản</h2>
+          <h2>✏️ Tạo Tài Khoản</h2>
           <p>Đăng ký để bắt đầu quản lý công việc</p>
         </div>
 
