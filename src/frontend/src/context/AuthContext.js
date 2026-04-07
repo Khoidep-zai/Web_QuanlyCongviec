@@ -23,6 +23,16 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import authService from '../services/authService';
 
 const normalizeAuthErrorMessage = (err, fallback) => {
+  const statusCode = err?.response?.status;
+  const responseType = err?.response?.headers?.['content-type'] || '';
+
+  if (statusCode === 404) {
+    if (responseType.includes('text/html')) {
+      return 'API đăng nhập không tồn tại ở domain hiện tại. Trên Netlify, hãy cấu hình REACT_APP_API_URL trỏ tới backend của bạn rồi deploy lại.';
+    }
+    return 'Không tìm thấy endpoint xác thực. Hãy kiểm tra lại REACT_APP_API_URL có đúng dạng https://<backend>/api hay chưa.';
+  }
+
   if (err?.response?.data?.message) {
     return err.response.data.message;
   }
