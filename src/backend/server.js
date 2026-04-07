@@ -90,6 +90,16 @@ app.get('/', (req, res) => {
   });
 });
 
+// Health endpoint cho nền tảng deploy như Render
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    status: 'ok',
+    service: 'task-manager-backend',
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // ===== 8. MIDDLEWARE XỬ LÝ LỖI =====
 // Đặt cuối cùng để bắt tất cả lỗi từ các route phía trên
 app.use(errorHandler);

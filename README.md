@@ -295,6 +295,33 @@ Neu khong set REACT_APP_API_URL, frontend production se mac dinh goi /api tren c
 Tuy chon khac: ban co the dung Netlify redirect proxy `/api/*` (template da co trong `netlify.toml`).
 Chi can bo comment block do va thay domain backend that truoc khi deploy.
 
+## 4.5 Deploy Backend len Render (de co domain API)
+
+Repo da co san file `render.yaml` de Render nhan dien cau hinh backend.
+
+### Cac buoc thuc hien
+
+1. Dang nhap Render va chon New + > Blueprint.
+2. Chon repo GitHub nay.
+3. Render se doc `render.yaml` va tao service `todo-list-api`.
+4. Trong service vua tao, vao Environment va nhap cac bien bat buoc:
+    - MONGODB_URI
+    - JWT_SECRET
+    - ADMIN_PASSWORD
+5. Bam Deploy.
+
+### Sau khi deploy xong
+
+1. Lay URL backend, vi du: `https://todo-list-api.onrender.com`.
+2. Tren Netlify, dat bien moi truong:
+    - REACT_APP_API_URL=https://todo-list-api.onrender.com/api
+3. Redeploy Netlify (Clear cache and deploy).
+
+### Kiem tra backend Render
+
+- Health check: `https://<backend-domain>/health`
+- Root API: `https://<backend-domain>/`
+
 ### Khac phuc loi "dang nhap/dang ky luon that bai"
 
 Neu tren Netlify ban thay dang nhap hoac dang ky luon that bai, thu tu kiem tra nhanh:
