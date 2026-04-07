@@ -1,10 +1,10 @@
 # ================================================================
 # CÁCH DÙNG:
-#   Chạy thường:   docker compose up --build
-#   Chạy nền:      docker compose up --build -d
-#   Dừng:          docker compose down
-#   Xem log:       docker compose logs -f
-#   Kèm admin UI:  docker compose --profile dev up --build
+#   Chạy thường:   docker compose -f docker/docker-compose.yml up --build
+#   Chạy nền:      docker compose -f docker/docker-compose.yml up --build -d
+#   Dừng:          docker compose -f docker/docker-compose.yml down
+#   Xem log:       docker compose -f docker/docker-compose.yml logs -f
+#   Kèm admin UI:  docker compose -f docker/docker-compose.yml --profile dev up --build
 # ================================================================
 
 services:
@@ -26,7 +26,7 @@ services:
       - mongodb_data:/data/db
       - mongodb_config:/data/configdb
       # Script khởi tạo collections & indexes (chỉ chạy lần đầu)
-      - ./ops/mongodb/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ../ops/mongodb/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     networks:
       - taskmanager-network
     healthcheck:
@@ -41,7 +41,7 @@ services:
   # ============================================
   backend:
     build:
-      context: ./src/backend    # Dockerfile nằm trong src/backend/
+      context: ../src/backend    # Dockerfile nằm trong src/backend/
       dockerfile: Dockerfile
     container_name: taskmanager-backend
     restart: unless-stopped
@@ -72,7 +72,7 @@ services:
   # ============================================
   frontend:
     build:
-      context: ./src/frontend   # Dockerfile nằm trong src/frontend/
+      context: ../src/frontend   # Dockerfile nằm trong src/frontend/
       dockerfile: Dockerfile
       args:
         # /api → nginx proxy → backend container (không cần biết port backend)

@@ -789,7 +789,7 @@ server {
 }
 ```
 
-#### **docker-compose.yml** (`docker-compose.yml`)
+#### **docker-compose.yml** (`docker/docker-compose.yml`)
 ```yaml
 version: '3.8'
 
@@ -798,12 +798,12 @@ services:
     image: mongo:6.0
     volumes:
       - mongodb_data:/data/db
-      - ./ops/mongodb/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ../ops/mongodb/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
 
   backend:          # Node.js Express API
-    build: { context: ./src/backend }
+    build: { context: ../src/backend }
     environment:
       MONGODB_URI: mongodb://admin:adminpassword@mongodb:27017/taskmanager?authSource=admin
       JWT_SECRET: ${JWT_SECRET}
@@ -814,7 +814,7 @@ services:
 
   frontend:         # React build → Nginx
     build:
-      context: ./src/frontend
+      context: ../src/frontend
       args: { REACT_APP_API_URL: /api }   # /api → nginx proxy → backend
     ports:
       - "3000:80"
@@ -834,19 +834,19 @@ volumes:
 **Lệnh Docker:**
 ```bash
 # Chạy thường (build + start)
-docker compose up --build
+docker compose -f docker/docker-compose.yml up --build
 
 # Kèm Admin UI MongoDB tại http://localhost:8081
-docker compose --profile dev up --build
+docker compose -f docker/docker-compose.yml --profile dev up --build
 
 # Chạy nền
-docker compose up --build -d
+docker compose -f docker/docker-compose.yml up --build -d
 
 # Dừng và xóa containers
-docker compose down
+docker compose -f docker/docker-compose.yml down
 
 # Xóa cả data (reset DB)
-docker compose down -v
+docker compose -f docker/docker-compose.yml down -v
 ```
 
 ### 5.2 Lựa chọn Triển khai Cloud

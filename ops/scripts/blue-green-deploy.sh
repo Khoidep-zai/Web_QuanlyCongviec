@@ -8,7 +8,7 @@ set -e
 
 # Configuration
 PROJECT_DIR="/opt/taskmanager"
-DOCKER_COMPOSE_FILE="$PROJECT_DIR/docker-compose.yml"
+DOCKER_COMPOSE_FILE="$PROJECT_DIR/docker/docker-compose.yml"
 NGINX_CONFIG="/etc/nginx/sites-available/taskmanager"
 
 # Colors for output
@@ -36,11 +36,11 @@ echo -e "${GREEN}Target environment: $TARGET${NC}"
 # Step 2: Pull latest images
 echo -e "\n${BLUE}Pulling latest Docker images...${NC}"
 cd "$PROJECT_DIR"
-docker-compose pull
+docker compose -f "$DOCKER_COMPOSE_FILE" pull
 
 # Step 3: Start target environment
 echo -e "\n${BLUE}Starting $TARGET environment...${NC}"
-docker-compose up -d backend-$TARGET frontend-$TARGET
+docker compose -f "$DOCKER_COMPOSE_FILE" up -d backend-$TARGET frontend-$TARGET
 
 # Step 4: Wait for services to be ready
 echo -e "\n${BLUE}Waiting for services to be healthy...${NC}"
@@ -57,7 +57,7 @@ for i in {1..10}; do
     fi
     if [ $i -eq 10 ]; then
         echo -e "${RED}✗ Backend health check failed${NC}"
-        docker-compose logs backend-$TARGET
+        docker compose -f "$DOCKER_COMPOSE_FILE" logs backend-$TARGET
         exit 1
     fi
     echo "Attempt $i/10 failed, retrying..."
@@ -66,11 +66,11 @@ done
 
 # Step 5: Run database migrations
 echo -e "\n${BLUE}Running database migrations...${NC}"
-docker-compose exec -T backend-$TARGET npm run migrate
+docker compose -f "$DOCKER_COMPOSE_FILE" exec -T backend-$TARGET npm run migrate
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}✗ Migration failed${NC}"
-    docker-compose stop backend-$TARGET frontend-$TARGET
+    docker compose -f "$DOCKER_COMPOSE_FILE" stop backend-$TARGET frontend-$TARGET
     exit 1
 fi
 
@@ -117,10 +117,10 @@ done
 
 # Step 9: Stop old environment
 echo -e "\n${BLUE}Stopping $CURRENT environment...${NC}"
-docker-compose stop backend-$CURRENT frontend-$CURRENT
+docker compose -f "$DOCKER_COMPOSE_FILE" stop backend-$CURRENT frontend-$CURRENT
 
 # Optional: Remove old containers
-# docker-compose rm -f backend-$CURRENT frontend-$CURRENT
+# docker compose -f "$DOCKER_COMPOSE_FILE" rm -f backend-$CURRENT frontend-$CURRENT
 
 echo -e "\n${GREEN}============================================${NC}"
 echo -e "${GREEN}Deployment completed successfully!${NC}"

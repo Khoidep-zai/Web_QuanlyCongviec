@@ -221,9 +221,9 @@ jobs:
           key: ${{ secrets.DEV_SERVER_SSH_KEY }}
           script: |
             cd /opt/taskmanager
-            docker-compose pull
-            docker-compose up -d
-            docker-compose exec -T backend npm run migrate
+            docker compose -f docker/docker-compose.yml pull
+            docker compose -f docker/docker-compose.yml up -d
+            docker compose -f docker/docker-compose.yml exec -T backend npm run migrate
       
       - name: Run Smoke Tests
         run: |
@@ -254,9 +254,9 @@ jobs:
           key: ${{ secrets.STAGING_SERVER_SSH_KEY }}
           script: |
             cd /opt/taskmanager
-            docker-compose pull
-            docker-compose up -d
-            docker-compose exec -T backend npm run migrate
+            docker compose -f docker/docker-compose.yml pull
+            docker compose -f docker/docker-compose.yml up -d
+            docker compose -f docker/docker-compose.yml exec -T backend npm run migrate
       
       - name: Run E2E Tests
         working-directory: ./src/frontend

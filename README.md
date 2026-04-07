@@ -82,19 +82,19 @@ Tai khoan admin mac dinh (duoc tao/duy tri khi backend khoi dong):
 ## Cach B: Chay bang Docker Compose
 
 ```bash
-docker compose up --build
+docker compose -f docker/docker-compose.yml up --build
 ```
 
 Them Mongo Express:
 
 ```bash
-docker compose --profile dev up --build
+docker compose -f docker/docker-compose.yml --profile dev up --build
 ```
 
 Neu can file env mau cho Docker, su dung:
 
 ```bash
-cp ops/.env.docker.example .env
+cp docker/.env.example docker/.env
 ```
 
 Truy cap:
@@ -138,13 +138,14 @@ File da sua:
 ├─ README.md
 ├─ package.json
 ├─ package-lock.json
-├─ docker-compose.yml
+├─ docker/
+│  ├─ docker-compose.yml
+│  └─ .env.example
 ├─ netlify.toml
 ├─ .env.example
 ├─ docs/
 │  └─ THIET_KE_PIPELINE_VI.md
 ├─ ops/
-│  ├─ .env.docker.example
 │  ├─ mongodb/
 │  │  ├─ database-schema.js
 │  │  └─ init-mongo.js
@@ -179,7 +180,7 @@ File da sua:
 Y nghia nhanh:
 - src/backend: API va business logic
 - src/frontend: giao dien va giao tiep API
-- docker-compose.yml: cau hinh container cho mongodb, backend, frontend
+- docker/: cau hinh Docker Compose va bien moi truong Docker
 - ops/mongodb: script khoi tao schema/index cho MongoDB
 - ops/scripts: script van hanh production (backup/deploy/rollback)
 - docs: tai lieu thiet ke va pipeline
@@ -236,18 +237,18 @@ Truy cap:
 
 ## 4. Chay bang Docker
 
-File compose nam o: docker-compose.yml (thu muc goc)
+File compose nam o: docker/docker-compose.yml
 
 ### 4.1 Chay nhanh
 
 ```bash
-docker compose up --build
+docker compose -f docker/docker-compose.yml up --build
 ```
 
 ### 4.2 Chay kem Mongo Express (profile dev)
 
 ```bash
-docker compose --profile dev up --build
+docker compose -f docker/docker-compose.yml --profile dev up --build
 ```
 
 Truy cap:
@@ -257,9 +258,9 @@ Truy cap:
 ### 4.3 Duong dan Docker da duoc chinh lai
 
 Trong compose da cap nhat dung voi cau truc src hien tai:
-- Backend build context: ./src/backend
-- Frontend build context: ./src/frontend
-- Mongo init script mount: ./ops/mongodb/init-mongo.js
+- Backend build context: ../src/backend
+- Frontend build context: ../src/frontend
+- Mongo init script mount: ../ops/mongodb/init-mongo.js
 
 ## 4.4 Deploy Frontend len Netlify (khong bi 404)
 

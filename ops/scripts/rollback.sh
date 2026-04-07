@@ -8,6 +8,7 @@ set -e
 
 # Configuration
 PROJECT_DIR="/opt/taskmanager"
+DOCKER_COMPOSE_FILE="$PROJECT_DIR/docker/docker-compose.yml"
 NGINX_CONFIG="/etc/nginx/sites-available/taskmanager"
 
 # Colors
@@ -41,7 +42,7 @@ fi
 # Start previous environment
 echo -e "\n${YELLOW}Starting $PREVIOUS environment...${NC}"
 cd "$PROJECT_DIR"
-docker-compose start backend-$PREVIOUS frontend-$PREVIOUS
+docker compose -f "$DOCKER_COMPOSE_FILE" start backend-$PREVIOUS frontend-$PREVIOUS
 
 # Wait for services
 sleep 20
@@ -63,7 +64,7 @@ sudo nginx -t && sudo nginx -s reload
 
 # Stop current (failed) environment
 echo -e "\n${YELLOW}Stopping $CURRENT environment...${NC}"
-docker-compose stop backend-$CURRENT frontend-$CURRENT
+docker compose -f "$DOCKER_COMPOSE_FILE" stop backend-$CURRENT frontend-$CURRENT
 
 echo -e "\n${GREEN}============================================${NC}"
 echo -e "${GREEN}Rollback completed successfully!${NC}"
