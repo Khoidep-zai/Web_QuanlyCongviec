@@ -1,224 +1,124 @@
-# Task Manager MERN - Do an cuoi ky Lap trinh Web Nang cao
+# 📌 Task Manager MERN - Báo cáo dự án Quản lý công việc
 
-Ung dung quan ly cong viec ca nhan theo kien truc MERN:
-- MongoDB: luu tru du lieu
-- Express + Node.js: REST API
-- React: giao dien nguoi dung
+> **Nhóm thực hiện:** Đồ án cuối kì - Lập trình Web Nâng cao  
+> **Mô hình:** MERN Stack (MongoDB, Express, React, Node.js)
 
-README nay duoc viet lai de:
-- De doc va de onboarding
-- Dung voi cau truc thu muc hien tai
-- Chay Docker dung path
-- Co ro luong hoat dong, user diagram, va test case mau
+---
 
-## 1. Tong quan kien truc
+## 📑 Mục lục
+- [1. Giới thiệu tổng quan](#1-giới-thiệu-tổng-quan)
+- [2. Kiến trúc hệ thống](#2-kiến-trúc-hệ-thống)
+- [3. Tính năng chính](#3-tính-năng-chính)
+- [4. Cài đặt và chạy chương trình](#4-cài-đặt-và-chạy-chương-trình)
+- [5. Cấu trúc dự án](#5-cấu-trúc-dự-án)
+- [6. Luồng hoạt động nghiệp vụ](#6-luồng-hoạt-động-nghiệp-vụ)
+- [7. API chính](#7-api-chính)
+- [8. Hướng dẫn triển khai](#8-hướng-dẫn-triển-khai)
+- [9. Kiểm thử nhanh (Smoke Test)](#9-kiểm-thử-nhanh-smoke-test)
+- [10. FAQ](#10-faq)
+- [11. Đóng góp và phát triển](#11-đóng-góp-và-phát-triển)
+- [12. Giấy phép](#12-giấy-phép)
 
-He thong gom 3 thanh phan chinh:
-1. Frontend React (nguoi dung thao tac tren trinh duyet)
-2. Backend Express (xu ly nghiep vu, xac thuc, API)
-3. MongoDB (luu user, task, category, thong ke)
+---
 
-Luong xu ly tong quat:
+## 1. Giới thiệu tổng quan
+
+Đây là ứng dụng quản lý công việc cá nhân theo kiến trúc MERN, hỗ trợ:
+- Quản lý task theo người dùng (CRUD)
+- Danh mục công việc theo user
+- Trạng thái, mức ưu tiên, deadline, tag
+- Subtask và đánh dấu hoàn thành
+- Dashboard thống kê và cảnh báo deadline
+- Khu vực quản trị (admin) cho toàn hệ thống
+
+Mục tiêu của tài liệu này:
+- Giúp người đọc hiểu nhanh hệ thống
+- Onboarding thuận tiện cho thành viên mới
+- Cung cấp hướng dẫn chạy local, Docker và deploy
+
+---
+
+## 2. Kiến trúc hệ thống
+
+Hệ thống gồm 3 lớp chính:
+1. **Frontend (React):** giao diện và tương tác người dùng
+2. **Backend (Express/Node.js):** xử lý nghiệp vụ, xác thực JWT, REST API
+3. **Database (MongoDB):** lưu user, task, category
+
+Luồng xử lý tổng quát:
 
 ```text
-Trinh duyet -> React UI -> Axios -> Express API -> Mongoose -> MongoDB
-                                             <- JSON response <-
+Browser -> React UI -> Axios -> Express API -> Mongoose -> MongoDB
+                                           <- JSON response <-
 ```
 
-## 2) Cac tinh nang chinh
+Sơ đồ ngắn:
 
-- Dang ky, dang nhap, xac thuc JWT
-- Quan ly cong viec CRUD
-- Danh muc cong viec theo user
-- Priority, status, due date, tag
-- Subtask va danh dau hoan thanh
-- Tim kiem, loc, sap xep, phan trang
-- Thong ke tong quan task
+```mermaid
+flowchart LR
+  U[User] --> FE[React Frontend]
+  FE --> API[Express API]
+  API --> DB[(MongoDB)]
+  DB --> API
+  API --> FE
+```
+
+---
+
+## 3. Tính năng chính
+
+- Đăng ký, đăng nhập, xác thực JWT
+- Cập nhật hồ sơ cá nhân
+- CRUD công việc và danh mục
+- Lọc/tìm kiếm/sắp xếp task
+- Quản lý subtask
+- Thống kê tổng quan công việc
+- Weekly schedule
 - Deadline alerts
-- Weekly timetable
-- Admin dashboard (thong ke toan he thong, quan tri user/task/category)
+- Admin dashboard:
+  - Quản lý user
+  - Quản lý task toàn hệ thống
+  - Quản lý category toàn hệ thống
 
-## 3) Huong dan chay web
+---
 
-## Cach A: Chay local
+## 4. Cài đặt và chạy chương trình
 
-Yeu cau:
+### 4.1. Yêu cầu hệ thống
 - Node.js >= 18
 - npm
-- MongoDB Atlas (hoac sua backend de tro sang local MongoDB)
+- MongoDB Atlas hoặc MongoDB local
+- Docker (nếu chạy bằng Compose)
 
-Cai dat:
+### 4.2. Chạy local (khuyến nghị cho phát triển)
 
-```bash
-cd src/backend
-npm install
-
-cd ../frontend
-npm install
-```
-
-Chay backend:
+Cài dependencies từ thư mục gốc:
 
 ```bash
-cd src/backend
-npm start
+npm run install-all
 ```
 
-Chay frontend:
+Chạy đồng thời backend + frontend:
 
 ```bash
-cd src/frontend
-npm start
+npm run dev
 ```
 
-Truy cap:
+Hoặc chạy riêng từng phần:
+
+```bash
+npm run backend
+npm run frontend
+```
+
+Truy cập:
 - Frontend: http://localhost:3000
-- Backend API: http://localhost:5000
+- Backend: http://localhost:5000
+- Health check backend: http://localhost:5000/health
 
-Tai khoan admin mac dinh (duoc tao/duy tri khi backend khoi dong):
-- username: admin
-- password: admin123
+### 4.3. Biến môi trường backend
 
-## Cach B: Chay bang Docker Compose
-
-```bash
-docker compose -f docker/docker-compose.yml up --build
-```
-
-Hoac chay 1 lenh tu package scripts:
-
-```bash
-npm run docker:up
-```
-
-Them Mongo Express:
-
-```bash
-docker compose -f docker/docker-compose.yml --profile dev up --build
-```
-
-Neu can file env mau cho Docker, su dung:
-
-```bash
-cp docker/.env.example docker/.env
-```
-
-Truy cap:
-- App: http://localhost:3000
-- Mongo Express: http://localhost:8081
-
-Ghi chu:
-- Docker se chay 3 container rieng (mongodb, backend, frontend) trong cung 1 stack ten `todo-list`.
-- Khong can (va khong nen) gop ca 3 service vao 1 container duy nhat.
-- Ten container de de nhin tren Docker Desktop:
-    - todo-list-01-db
-    - todo-list-02-api
-    - todo-list-03-web
-
-## 4) Kiem chung tinh trang chay (da thuc hien)
-
-Da kiem chung trong workspace ngay 2026-03-18:
-- Backend ket noi MongoDB thanh cong va listen http://localhost:5000
-- Frontend dev server compile thanh cong tai http://localhost:3000
-
-## 5) Bug da fix trong lan cap nhat nay
-
-### Loi da sua
-
-Frontend xu ly sai payload cua API dang nhap/dang ky:
-- Backend tra ve dang:
-  - success
-  - message
-  - data: { user fields + token }
-- AuthContext truoc day doc nham response.data.token thay vi response.data.data.token
-
-### Tac dong
-
-- Dang nhap thanh cong nhung localStorage co the luu sai du lieu
-- Trang thai da dang nhap co the khong on dinh
-- Phan quyen admin co the sai
-
-### Cach da fix
-
-Da dong bo parser trong AuthContext de lay dung object data tu response.
-
-File da sua:
-- src/frontend/src/context/AuthContext.js
-
-## 6) Cau truc thu muc va giai thich
-
-```text
-.
-├─ README.md
-├─ package.json
-├─ package-lock.json
-├─ docker/
-│  ├─ docker-compose.yml
-│  └─ .env.example
-├─ netlify.toml
-├─ .env.example
-├─ docs/
-│  └─ THIET_KE_PIPELINE_VI.md
-├─ ops/
-│  ├─ mongodb/
-│  │  ├─ database-schema.js
-│  │  └─ init-mongo.js
-│  └─ scripts/
-│     ├─ backup-database.sh
-│     ├─ blue-green-deploy.sh
-│     └─ rollback.sh
-└─ src/
-   ├─ backend/
-   │  ├─ Dockerfile
-   │  ├─ package.json
-   │  ├─ server.js
-   │  ├─ config/
-   │  ├─ controllers/
-   │  ├─ middleware/
-   │  ├─ models/
-   │  └─ routes/
-   ├─ frontend/
-   │  ├─ Dockerfile
-   │  ├─ nginx.conf
-   │  ├─ package.json
-   │  ├─ public/
-    │  │  └─ _redirects
-    │  ├─ build/
-   │  └─ src/
-   │     ├─ components/
-   │     ├─ context/
-   │     ├─ pages/
-   │     └─ services/
-```
-
-Y nghia nhanh:
-- src/backend: API va business logic
-- src/frontend: giao dien va giao tiep API
-- docker/: cau hinh Docker Compose va bien moi truong Docker
-- ops/mongodb: script khoi tao schema/index cho MongoDB
-- ops/scripts: script van hanh production (backup/deploy/rollback)
-- docs: tai lieu thiet ke va pipeline
-
-## 3. Chay local (khong Docker)
-
-Yeu cau:
-- Node.js >= 18
-- npm
-- MongoDB Atlas hoac MongoDB local
-
-### 3.1 Cai dependencies
-
-```bash
-cd src/backend
-npm install
-
-cd ../frontend
-npm install
-```
-
-### 3.2 Tao env cho backend
-
-Tao file src/backend/.env voi noi dung toi thieu:
+Tạo file `src/backend/.env`:
 
 ```env
 PORT=5000
@@ -231,243 +131,244 @@ ADMIN_PASSWORD=admin123
 ADMIN_EMAIL=admin@taskmanager.com
 ```
 
-### 3.3 Chay app
+Tài khoản admin mặc định sẽ được **đảm bảo tồn tại** khi backend khởi động:
+- username: `admin`
+- password: `admin123` (hoặc theo biến `ADMIN_PASSWORD`)
 
-Terminal 1:
-```bash
-cd src/backend
-npm start
+---
+
+## 5. Cấu trúc dự án
+
+```text
+.
+├─ README.md
+├─ package.json
+├─ netlify.toml
+├─ render.yaml
+├─ docker/
+│  └─ docker-compose.yml
+├─ docs/
+│  └─ THIET_KE_PIPELINE_VI.md
+├─ ops/
+│  ├─ mongodb/
+│  │  ├─ database-schema.js
+│  │  └─ init-mongo.js
+│  └─ scripts/
+│     ├─ backup-database.sh
+│     ├─ blue-green-deploy.sh
+│     └─ rollback.sh
+└─ src/
+   ├─ backend/
+   │  ├─ server.js
+   │  ├─ config/
+   │  ├─ controllers/
+   │  ├─ middleware/
+   │  ├─ models/
+   │  └─ routes/
+   └─ frontend/
+      ├─ public/
+      ├─ src/
+      │  ├─ components/
+      │  ├─ context/
+      │  ├─ pages/
+      │  └─ services/
+      └─ build/
 ```
 
-Terminal 2:
-```bash
-cd src/frontend
-npm start
+Giải thích nhanh:
+- `src/backend`: API, business logic, auth, admin
+- `src/frontend`: UI React, context xác thực, gọi API bằng Axios
+- `docker/`: cấu hình chạy stack bằng Docker Compose
+- `ops/`: script vận hành và khởi tạo MongoDB
+- `docs/`: tài liệu thiết kế/pipeline
+
+---
+
+## 6. Luồng hoạt động nghiệp vụ
+
+### 6.1. Đăng nhập
+
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant FE as Frontend
+  participant BE as Backend
+  participant DB as MongoDB
+
+  U->>FE: Submit login form
+  FE->>BE: POST /api/auth/login
+  BE->>DB: Find user
+  DB-->>BE: User document
+  BE->>BE: Verify password + sign JWT
+  BE-->>FE: success + data(user + token)
+  FE-->>U: Redirect dashboard
 ```
 
-Truy cap:
-- Frontend: http://localhost:3000
-- Backend: http://localhost:5000
+### 6.2. Quản lý task
 
-## 4. Chay bang Docker
+```mermaid
+flowchart TD
+  A[User thao tác TaskForm/TaskList] --> B[Frontend services]
+  B --> C[/api/tasks]
+  C --> D[authMiddleware + taskController]
+  D --> E[(MongoDB)]
+  E --> D
+  D --> B
+  B --> F[Cập nhật UI và thống kê]
+```
 
-File compose nam o: docker/docker-compose.yml
+---
 
-### 4.1 Chay nhanh
+## 7. API chính
+
+### 7.1. Auth
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `GET /api/auth/me`
+- `PUT /api/auth/profile`
+
+### 7.2. Task
+- `GET /api/tasks`
+- `POST /api/tasks`
+- `GET /api/tasks/:id`
+- `PUT /api/tasks/:id`
+- `DELETE /api/tasks/:id`
+- `PUT /api/tasks/:id/subtasks/:subtaskId`
+- `GET /api/tasks/stats/overview`
+- `GET /api/tasks/schedule/week`
+- `GET /api/tasks/alerts/deadlines`
+
+### 7.3. Category
+- `GET /api/categories`
+- `POST /api/categories`
+- `PUT /api/categories/:id`
+- `DELETE /api/categories/:id`
+
+### 7.4. Admin
+- `GET /api/admin/overview`
+- `GET /api/admin/users`
+- `PUT /api/admin/users/:id/status`
+- `PUT /api/admin/users/:id/reset-password`
+- `GET /api/admin/tasks`
+- `DELETE /api/admin/tasks/:id`
+- `GET /api/admin/categories`
+- `POST /api/admin/categories`
+- `PUT /api/admin/categories/:id`
+- `DELETE /api/admin/categories/:id`
+
+---
+
+## 8. Hướng dẫn triển khai
+
+### 8.1. Docker Compose
+
+Chạy stack:
 
 ```bash
 docker compose -f docker/docker-compose.yml up --build
 ```
 
-### 4.2 Chay kem Mongo Express (profile dev)
+Chạy nền:
+
+```bash
+npm run docker:up
+```
+
+Dừng stack:
+
+```bash
+npm run docker:down
+```
+
+Xem logs:
+
+```bash
+npm run docker:logs
+```
+
+Mở Mongo Express (profile dev):
 
 ```bash
 docker compose -f docker/docker-compose.yml --profile dev up --build
 ```
 
-Truy cap:
-- App: http://localhost:3000
-- Mongo Express: http://localhost:8081
+Mặc định các container:
+- `todo-list-01-db`
+- `todo-list-02-api`
+- `todo-list-03-web`
+- `todo-list-04-db-admin` (khi bật profile dev)
 
-### 4.3 Duong dan Docker da duoc chinh lai
+### 8.2. Deploy Frontend lên Netlify
 
-Trong compose da cap nhat dung voi cau truc src hien tai:
-- Backend build context: ../src/backend
-- Frontend build context: ../src/frontend
-- Mongo init script mount: ../ops/mongodb/init-mongo.js
+Đã có sẵn:
+- `netlify.toml`
+- `src/frontend/public/_redirects`
 
-## 4.4 Deploy Frontend len Netlify (khong bi 404)
+Cấu hình Netlify:
+- Base directory: `src/frontend`
+- Build command: `npm run build`
+- Publish directory: `build`
 
-Da them san 2 file de tranh loi "Page not found" khi refresh route:
-- netlify.toml (build + publish + redirect)
-- src/frontend/public/_redirects (SPA fallback)
+Biến môi trường quan trọng:
+- `REACT_APP_API_URL=https://<domain-backend>/api`
 
-Cau hinh Netlify de deploy frontend:
-- Base directory: src/frontend
-- Build command: npm run build
-- Publish directory: build
+### 8.3. Deploy Backend lên Render
 
-Bien moi truong can set tren Netlify:
-- REACT_APP_API_URL=https://<domain-backend-cua-ban>/api
+Đã có `render.yaml` để Render nhận diện service.
 
-Neu khong set REACT_APP_API_URL, frontend production se mac dinh goi /api tren cung domain.
+Biến bắt buộc cần cấu hình trên Render:
+- `MONGODB_URI`
+- `JWT_SECRET`
+- `ADMIN_PASSWORD`
 
-Tuy chon khac: ban co the dung Netlify redirect proxy `/api/*` (template da co trong `netlify.toml`).
-Chi can bo comment block do va thay domain backend that truoc khi deploy.
-
-## 4.5 Deploy Backend len Render (de co domain API)
-
-Repo da co san file `render.yaml` de Render nhan dien cau hinh backend.
-
-### Cac buoc thuc hien
-
-1. Dang nhap Render va chon New + > Blueprint.
-2. Chon repo GitHub nay.
-3. Render se doc `render.yaml` va tao service `todo-list-api`.
-4. Trong service vua tao, vao Environment va nhap cac bien bat buoc:
-    - MONGODB_URI
-    - JWT_SECRET
-    - ADMIN_PASSWORD
-5. Bam Deploy.
-
-### Sau khi deploy xong
-
-1. Lay URL backend, vi du: `https://todo-list-api.onrender.com`.
-2. Tren Netlify, dat bien moi truong:
-    - REACT_APP_API_URL=https://todo-list-api.onrender.com/api
-3. Redeploy Netlify (Clear cache and deploy).
-
-### Kiem tra backend Render
-
-- Health check: `https://<backend-domain>/health`
-- Root API: `https://<backend-domain>/`
-
-### Khac phuc loi "dang nhap/dang ky luon that bai"
-
-Neu tren Netlify ban thay dang nhap hoac dang ky luon that bai, thu tu kiem tra nhanh:
-- Dam bao backend da deploy va truy cap duoc bang HTTPS.
-- Trong Netlify, set `REACT_APP_API_URL=https://<domain-backend>/api`.
-- Redeploy lai site sau khi sua env.
-- Mo tab Network tren browser va kiem tra request `/auth/login`:
-    - Neu URL dang la `https://<domain-netlify>/api/...` va tra ve HTML (`text/html`), nghia la frontend dang goi nham vao chinh Netlify site thay vi backend.
-
-## 5. Luong hoat dong chi tiet
-
-## 5.1 Login flow
-
-1. User nhap tai khoan tai man hinh login
-2. Frontend goi POST /api/auth/login
-3. Backend kiem tra user + password hash
-4. Backend tao JWT tra ve frontend
-5. Frontend luu token va gan Authorization cho request tiep theo
-
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant FE as Frontend
-    participant BE as Backend
-    participant DB as MongoDB
-
-    U->>FE: Submit login form
-    FE->>BE: POST /api/auth/login
-    BE->>DB: Find user by email/username
-    DB-->>BE: User document
-    BE->>BE: Verify password + create JWT
-    BE-->>FE: success + token + user
-    FE-->>U: Redirect to dashboard
-```
-
-## 5.2 Task management flow
-
-1. User tao/sua/xoa task
-2. Frontend goi API tasks
-3. Backend validate quyen + du lieu
-4. Backend ghi doc MongoDB
-5. Frontend cap nhat UI + thong ke
-
-```mermaid
-flowchart TD
-    A[User thao tac TaskForm/TaskList] --> B[Frontend services]
-    B --> C[/api/tasks]
-    C --> D[authMiddleware + taskController]
-    D --> E[(MongoDB)]
-    E --> D
-    D --> B
-    B --> F[Render lai danh sach task]
-```
-
-## 6. User diagram (vai tro va use case)
-
-```mermaid
-flowchart LR
-    U[User] --> UC1[Dang ky/Dang nhap]
-    U --> UC2[CRUD task]
-    U --> UC3[Loc tim kiem sap xep]
-    U --> UC4[Xem deadline alerts]
-    U --> UC5[Xem weekly timetable]
-
-    A[Admin] --> AC1[Xem tong quan he thong]
-    A --> AC2[Quan ly user]
-    A --> AC3[Quan ly task toan he thong]
-    A --> AC4[Quan ly category toan he thong]
-```
-
-## 7. Endpoint chinh
-
-Auth:
-- POST /api/auth/register
-- POST /api/auth/login
-- GET /api/auth/me
-- PUT /api/auth/profile
-
-Task:
-- GET /api/tasks
-- POST /api/tasks
-- GET /api/tasks/:id
-- PUT /api/tasks/:id
-- DELETE /api/tasks/:id
-- GET /api/tasks/stats/overview
-- GET /api/tasks/schedule/week
-- GET /api/tasks/alerts/deadlines
-
-Category:
-- GET /api/categories
-- POST /api/categories
-- PUT /api/categories/:id
-- DELETE /api/categories/:id
-
-Admin:
-- GET /api/admin/overview
-- GET /api/admin/users
-- PUT /api/admin/users/:id/status
-- GET /api/admin/tasks
-- DELETE /api/admin/tasks/:id
-
-## 8. Test case mau
-
-Bang duoi day la test case muc tieu de verify luong nghiep vu chinh.
-
-| TC ID | Muc tieu | Input | Ket qua mong doi |
-|---|---|---|---|
-| TC-01 | Dang ky tai khoan moi | username/email/password hop le | 201, tao user thanh cong |
-| TC-02 | Dang nhap dung | account hop le | 200, tra JWT token |
-| TC-03 | Dang nhap sai mat khau | sai password | 401, thong bao sai thong tin |
-| TC-04 | Tao task moi | token hop le + task data | 201, task duoc tao |
-| TC-05 | Lay danh sach task theo filter | status=todo | 200, danh sach dung bo loc |
-| TC-06 | Sua task | doi status -> completed | 200, task cap nhat thanh cong |
-| TC-07 | Xoa task | task id hop le | 200, task bi xoa |
-| TC-08 | Truy cap API khi khong co token | GET /api/tasks khong auth | 401 Unauthorized |
-| TC-09 | User thu xem admin API | user token goi /api/admin/overview | 403 Forbidden |
-| TC-10 | Admin khoa user | admin token + user id | 200, user bi khoa |
-| TC-11 | Deadline alerts | co task sap den han | danh sach alerts dung thu tu deadline |
-| TC-12 | Weekly schedule | co task trong tuan | du lieu timetable tra dung theo ngay |
-
-## 9. Kiem thu nhanh sau khi khoi tao
-
-Checklist smoke test:
-1. Mo app va dang nhap bang admin mac dinh
-2. Tao 1 task, sua status, xoa task
-3. Tao 1 category moi
-4. Kiem tra dashboard stats thay doi theo task
-5. Neu la admin: vao trang admin xem overview
-
-## 10. Tai khoan admin mac dinh
-
-Backend se dam bao tai khoan admin mac dinh ton tai khi khoi dong:
-- username: admin
-- password: admin123
-
-Nen doi thong tin nay trong moi truong production.
-
-## 11. Ghi chu van hanh
-
-- Frontend dev mode su dung proxy toi backend localhost:5000
-- Docker frontend su dung nginx proxy /api -> backend:5000
-- Neu backend khong ket noi duoc MongoDB, server se dung khi startup de tranh loi ngam
+Kiểm tra sau deploy:
+- `GET /health` trả về trạng thái `ok`
 
 ---
 
-Neu ban muon, co the bo sung tiep:
-- ERD chi tiet cho collections
-- Mapping route -> controller -> model
-- API contract cho tung endpoint (request/response)
+## 9. Kiểm thử nhanh (Smoke Test)
+
+1. Đăng nhập bằng tài khoản admin mặc định
+2. Tạo task mới, cập nhật trạng thái, xóa task
+3. Tạo category mới
+4. Kiểm tra dashboard stats thay đổi theo dữ liệu
+5. Đăng nhập bằng tài khoản thường và thử truy cập API admin (phải bị chặn)
+
+Mẫu test case nghiệp vụ:
+- Đăng ký thành công với user mới
+- Đăng nhập sai mật khẩu trả về 401
+- Gọi API bảo vệ khi không có token trả về 401
+- User thường gọi `/api/admin/*` trả về 403
+
+---
+
+## 10. FAQ
+
+**1) Vì sao frontend production có thể đăng nhập thất bại trên Netlify?**  
+Thường do thiếu `REACT_APP_API_URL`, khiến frontend gọi sai domain API.
+
+**2) Vì sao backend dừng ngay khi khởi động?**  
+Nếu `MONGODB_URI` sai hoặc MongoDB không truy cập được, backend sẽ thoát để tránh chạy lỗi ngầm.
+
+**3) Có bắt buộc dùng Docker không?**  
+Không. Có thể chạy local bằng `npm run dev` từ thư mục gốc.
+
+**4) Vai trò admin được tạo như thế nào?**  
+Backend tự đảm bảo tài khoản admin tồn tại khi khởi động, theo biến `ADMIN_*`.
+
+---
+
+## 11. Đóng góp và phát triển
+
+Hướng mở rộng đề xuất:
+- Realtime notifications (WebSocket)
+- Nhắc việc định kỳ qua email/cron
+- Tối ưu phân trang và truy vấn thống kê lớn
+- Bổ sung unit test/integration test
+- Bổ sung OpenAPI/Swagger cho tài liệu API
+
+---
+
+## 12. Giấy phép
+
+Xem file giấy phép tại `LICENSE.md`.
