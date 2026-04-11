@@ -15,9 +15,10 @@
 - [7. API chính](#7-api-chính)
 - [8. Hướng dẫn triển khai](#8-hướng-dẫn-triển-khai)
 - [9. Kiểm thử nhanh (Smoke Test)](#9-kiểm-thử-nhanh-smoke-test)
-- [10. FAQ](#10-faq)
-- [11. Đóng góp và phát triển](#11-đóng-góp-và-phát-triển)
-- [12. Giấy phép](#12-giấy-phép)
+- [10. Demo sản phẩm](#10-demo-sản-phẩm)
+- [11. FAQ](#11-faq)
+- [12. Đóng góp và phát triển](#12-đóng-góp-và-phát-triển)
+- [13. Giấy phép](#13-giấy-phép)
 
 ---
 
@@ -208,13 +209,13 @@ sequenceDiagram
 
 ```mermaid
 flowchart TD
-  A[User thao tác TaskForm/TaskList] --> B[Frontend services]
-  B --> C[/api/tasks]
-  C --> D[authMiddleware + taskController]
+  A["User thao tac TaskForm/TaskList"] --> B["Frontend services"]
+  B --> C["POST/GET /api/tasks"]
+  C --> D["authMiddleware + taskController"]
   D --> E[(MongoDB)]
   E --> D
   D --> B
-  B --> F[Cập nhật UI và thống kê]
+  B --> F["Cap nhat UI va thong ke"]
 ```
 
 ---
@@ -342,7 +343,34 @@ Mẫu test case nghiệp vụ:
 
 ---
 
-## 10. FAQ
+## 10. Demo sản phẩm
+
+Bạn có thể đặt ảnh demo vào thư mục `docs/demo/` và giữ đúng tên file như bên dưới để README hiển thị ngay:
+
+- `docs/demo/login-page.png`
+- `docs/demo/dashboard-page.png`
+- `docs/demo/task-crud.png`
+- `docs/demo/admin-overview.png`
+
+### 10.1. Màn hình đăng nhập
+
+![Demo đăng nhập](docs/demo/login-page.png)
+
+### 10.2. Dashboard người dùng
+
+![Demo dashboard](docs/demo/dashboard-page.png)
+
+### 10.3. Demo tạo/sửa/xóa task
+
+![Demo task CRUD](docs/demo/task-crud.png)
+
+### 10.4. Dashboard quản trị (Admin)
+
+![Demo admin](docs/demo/admin-overview.png)
+
+---
+
+## 11. FAQ
 
 **1) Vì sao frontend production có thể đăng nhập thất bại trên Netlify?**  
 Thường do thiếu `REACT_APP_API_URL`, khiến frontend gọi sai domain API.
@@ -358,7 +386,7 @@ Backend tự đảm bảo tài khoản admin tồn tại khi khởi động, the
 
 ---
 
-## 11. Đóng góp và phát triển
+## 12. Đóng góp và phát triển
 
 Hướng mở rộng đề xuất:
 - Realtime notifications (WebSocket)
@@ -369,6 +397,6 @@ Hướng mở rộng đề xuất:
 
 ---
 
-## 12. Giấy phép
+## 13. Giấy phép
 
 Xem file giấy phép tại `LICENSE.md`.
