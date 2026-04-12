@@ -142,46 +142,47 @@ Tài khoản admin mặc định sẽ được **đảm bảo tồn tại** khi 
 
 ```text
 .
-├─ README.md
-├─ package.json
-├─ netlify.toml
-├─ render.yaml
-├─ docker/
-│  └─ docker-compose.yml
-├─ docs/
-│  └─ THIET_KE_PIPELINE_VI.md
-├─ ops/
-│  ├─ mongodb/
-│  │  ├─ database-schema.js
-│  │  └─ init-mongo.js
-│  └─ scripts/
-│     ├─ backup-database.sh
-│     ├─ blue-green-deploy.sh
-│     └─ rollback.sh
-└─ src/
-   ├─ backend/
-   │  ├─ server.js
-   │  ├─ config/
-   │  ├─ controllers/
-   │  ├─ middleware/
-   │  ├─ models/
-   │  └─ routes/
-   └─ frontend/
-      ├─ public/
-      ├─ src/
-      │  ├─ components/
-      │  ├─ context/
-      │  ├─ pages/
-      │  └─ services/
-      └─ build/
+├─ README.md                    # Tài liệu tổng quan dự án
+├─ LICENSE.md                   # Điều khoản sử dụng và phân phối
+├─ package.json                 # Script chạy nhanh ở thư mục gốc
+├─ netlify.toml                 # Cấu hình deploy frontend trên Netlify
+├─ render.yaml                  # Cấu hình deploy backend trên Render
+├─ docker/                      # Cấu hình container hóa
+│  └─ docker-compose.yml        # Stack DB + API + Frontend
+├─ docs/                        # Tài liệu kỹ thuật và hình minh họa
+│  ├─ THIET_KE_PIPELINE_VI.md   # Tài liệu thiết kế/pipeline
+│  └─ demo/                     # Ảnh demo sản phẩm cho README
+│     ├─ login-page.png         # Màn hình đăng nhập
+│     ├─ dashboard-page.png     # Màn hình dashboard người dùng
+│     ├─ task-crud.png          # Màn hình thao tác task
+│     ├─ admin-overview.png     # Màn hình quản trị admin
+│     └─ README.md              # Ghi chú bộ ảnh demo
+├─ ops/                         # Script vận hành và tự động hóa
+│  ├─ mongodb/                  # Script khởi tạo MongoDB
+│  │  ├─ database-schema.js     # Định nghĩa schema/index
+│  │  └─ init-mongo.js          # Seed/init dữ liệu MongoDB
+│  └─ scripts/                  # Script deploy/backup/rollback/demo
+│     ├─ backup-database.sh     # Sao lưu dữ liệu
+│     ├─ blue-green-deploy.sh   # Triển khai blue-green
+│     ├─ rollback.sh            # Rollback phiên bản
+│     └─ demo-server.js         # Server demo nội bộ để chụp ảnh
+└─ src/                         # Mã nguồn chính của sản phẩm
+   ├─ backend/                  # Express API + Mongoose
+   │  ├─ server.js              # Điểm vào khởi động backend
+   │  ├─ config/                # Cấu hình DB và biến môi trường
+   │  ├─ controllers/           # Xử lý nghiệp vụ theo module
+   │  ├─ middleware/            # Auth, validate, error handler
+   │  ├─ models/                # Mongoose models
+   │  └─ routes/                # Định nghĩa endpoint API
+   └─ frontend/                 # React frontend
+      ├─ public/                # Tài nguyên public/static
+      ├─ src/                   # Nguồn giao diện ứng dụng
+      │  ├─ components/         # Các component tái sử dụng
+      │  ├─ context/            # State chia sẻ (AuthContext)
+      │  ├─ pages/              # Các trang chính
+      │  └─ services/           # Lớp gọi API
+      └─ build/                 # Bản build production
 ```
-
-Giải thích nhanh:
-- `src/backend`: API, business logic, auth, admin
-- `src/frontend`: UI React, context xác thực, gọi API bằng Axios
-- `docker/`: cấu hình chạy stack bằng Docker Compose
-- `ops/`: script vận hành và khởi tạo MongoDB
-- `docs/`: tài liệu thiết kế/pipeline
 
 ---
 
@@ -345,12 +346,14 @@ Mẫu test case nghiệp vụ:
 
 ## 10. Demo sản phẩm
 
-Bạn có thể đặt ảnh demo vào thư mục `docs/demo/` và giữ đúng tên file như bên dưới để README hiển thị ngay:
+Ảnh demo dưới đây đã được chụp khi chạy sản phẩm và lưu tại thư mục `docs/demo/`:
 
 - `docs/demo/login-page.png`
 - `docs/demo/dashboard-page.png`
 - `docs/demo/task-crud.png`
 - `docs/demo/admin-overview.png`
+
+Nguồn dữ liệu demo được dựng từ server nội bộ `ops/scripts/demo-server.js` để đảm bảo có thể xem nhanh giao diện đầy đủ.
 
 ### 10.1. Màn hình đăng nhập
 
