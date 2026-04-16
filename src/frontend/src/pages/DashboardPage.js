@@ -24,6 +24,11 @@ const DashboardPage = () => {
   const [activeFilter, setActiveFilter] = useState('all');    // Bộ lọc trạng thái đang chọn
   const [categoryFilter, setCategoryFilter] = useState(null); // Bộ lọc danh mục đang chọn
   const [stats, setStats] = useState(null);                   // Dữ liệu thống kê
+  const [focusDate, setFocusDate] = useState(() => new Date());
+  const [quickCreateRequest, setQuickCreateRequest] = useState({
+    mode: 'todo',
+    nonce: 0,
+  });
 
   // ===== TẢI THỐNG KÊ KHI TRANG MỞ =====
   useEffect(() => {
@@ -70,6 +75,13 @@ const DashboardPage = () => {
     },
   ];
 
+  const handleQuickCreate = (mode) => {
+    setQuickCreateRequest({
+      mode,
+      nonce: Date.now(),
+    });
+  };
+
   return (
     <div className="app-layout">
       {/* Thanh điều hướng trên cùng */}
@@ -89,39 +101,47 @@ const DashboardPage = () => {
             setCategoryFilter(catId);
             setActiveFilter('all');
           }}
+          onQuickCreate={handleQuickCreate}
+          focusDate={focusDate}
+          onFocusDateChange={setFocusDate}
         />
 
         {/* Nội dung chính bên phải */}
-        <main className="main-content">
-          <section className="dashboard-intro">
-            <div>
-              <h2>Tập trung vào bước nhỏ, hoàn thành việc lớn</h2>
+        <main className="main-content calendar-main-content">
+          <section className="calendar-hero">
+            <div className="calendar-hero-copy">
+              <h2>Biến công việc thành chuỗi bước nhỏ để hoàn thành</h2>
               <p>
-                Chọn một việc quan trọng, bắt đầu ngay 15 phút, rồi tiếp tục từng bước.
+                Trải nghiệm lịch tuần trực quan theo phong cách Google Calendar, nhưng vẫn giữ tinh thần Duolingo vui tươi.
               </p>
             </div>
-            <span className="dashboard-intro-tag">Giao diện thân thiện cho mọi lứa tuổi</span>
+            <section className="calendar-hero-cards" aria-label="Tổng quan nhanh">
+              {summaryCards.map((card) => (
+                <article key={card.key} className={`calendar-hero-chip tone-${card.tone}`}>
+                  <span className="stat-emoji" aria-hidden="true">{card.icon}</span>
+                  <div>
+                    <h3>{card.label}</h3>
+                    <p>{card.value}</p>
+                  </div>
+                </article>
+              ))}
+            </section>
           </section>
 
-          <section className="dashboard-stats-grid" aria-label="Tổng quan nhanh">
-            {summaryCards.map((card) => (
-              <article key={card.key} className={`dashboard-stat-card tone-${card.tone}`}>
-                <span className="stat-emoji" aria-hidden="true">{card.icon}</span>
-                <div>
-                  <h3>{card.label}</h3>
-                  <p>{card.value}</p>
-                </div>
-              </article>
-            ))}
-          </section>
-
-          <DeadlineAlerts />
-          <TimetableBoard />
-          <TaskList
-            filter={activeFilter}
-            categoryFilter={categoryFilter}
-            onStatsChange={setStats}
+          <TimetableBoard
+            focusDate={focusDate}
+            onFocusDateChange={setFocusDate}
           />
+
+          <section className="calendar-bottom-grid">
+            <DeadlineAlerts />
+            <TaskList
+              filter={activeFilter}
+              categoryFilter={categoryFilter}
+              onStatsChange={setStats}
+              quickCreateRequest={quickCreateRequest}
+            />
+          </section>
         </main>
       </div>
     </div>

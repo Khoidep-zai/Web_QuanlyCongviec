@@ -19,12 +19,13 @@ import TaskCard from './TaskCard';
 import TaskForm from './TaskForm';
 import taskService from '../../services/taskService';
 
-const TaskList = ({ filter, categoryFilter, onStatsChange }) => {
+const TaskList = ({ filter, categoryFilter, onStatsChange, quickCreateRequest }) => {
   // ===== STATE =====
   const [tasks, setTasks] = useState([]);           // Danh sách task
   const [loading, setLoading] = useState(true);     // Đang tải
   const [showForm, setShowForm] = useState(false);   // Hiện form tạo/sửa
   const [editingTask, setEditingTask] = useState(null); // Task đang sửa
+  const [createMode, setCreateMode] = useState('todo');
   const [search, setSearch] = useState('');           // Từ khóa tìm kiếm
   const [sortBy, setSortBy] = useState('createdAt'); // Sắp xếp theo
   const [order, setOrder] = useState('desc');         // Thứ tự sắp xếp
@@ -129,10 +130,29 @@ const TaskList = ({ filter, categoryFilter, onStatsChange }) => {
   };
 
   // ===== MỞ FORM CHỈNH SỬA =====
+  const inferTaskMode = (taskData) => {
+    if (taskData?.scheduleStart && taskData?.scheduleEnd) {
+      return taskData?.tags?.includes('appointment') ? 'appointment' : 'event';
+    }
+    return 'todo';
+  };
+
+  const openCreateForm = (mode = 'todo') => {
+    setCreateMode(mode);
+    setEditingTask(null);
+    setShowForm(true);
+  };
+
   const handleEdit = (task) => {
+    setCreateMode(inferTaskMode(task));
     setEditingTask(task);
     setShowForm(true);
   };
+
+  useEffect(() => {
+    if (!quickCreateRequest?.nonce) return;
+    openCreateForm(quickCreateRequest.mode || 'todo');
+  }, [quickCreateRequest?.nonce]);
 
   return (
     <div className="task-list-container">
@@ -141,9 +161,17 @@ const TaskList = ({ filter, categoryFilter, onStatsChange }) => {
         {/* Nút tạo mới */}
         <button
           className="btn btn-primary"
-          onClick={() => { setEditingTask(null); setShowForm(true); }}
+          onClick={() => openCreateForm('todo')}
         >
-          ➕ Tạo công việc mới
+          ➕ Tạo việc cần làm
+        </button>
+
+        <button className="btn btn-small btn-secondary" onClick={() => openCreateForm('event')}>
+          📅 Sự kiện
+        </button>
+
+        <button className="btn btn-small btn-secondary" onClick={() => openCreateForm('appointment')}>
+          🤝 Lên lịch hẹn
         </button>
 
         {/* Ô tìm kiếm */}
@@ -184,7 +212,7 @@ const TaskList = ({ filter, categoryFilter, onStatsChange }) => {
         <div className="empty-state">
           <div className="empty-icon">📋</div>
           <h3>Chưa có công việc nào</h3>
-          <p>Bấm "Tạo công việc mới" để bắt đầu!</p>
+          <p>Bấm "Tạo việc cần làm" hoặc dùng nút Tạo ở thanh bên để bắt đầu.</p>
         </div>
       ) : (
         <>
@@ -230,6 +258,7 @@ const TaskList = ({ filter, categoryFilter, onStatsChange }) => {
       {showForm && (
         <TaskForm
           task={editingTask}
+          createMode={createMode}
           onSubmit={editingTask ? handleUpdate : handleCreate}
           onCancel={() => { setShowForm(false); setEditingTask(null); }}
         />

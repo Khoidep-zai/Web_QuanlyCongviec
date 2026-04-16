@@ -14,23 +14,78 @@
 import React, { useState, useEffect } from 'react';
 import categoryService from '../../services/categoryService';
 
-const TaskForm = ({ task, onSubmit, onCancel }) => {
+const MODE_OPTIONS = [
+  { key: 'event', label: 'Sự kiện', icon: '📅' },
+  { key: 'todo', label: 'Việc cần làm', icon: '📝' },
+  { key: 'appointment', label: 'Lên lịch hẹn', icon: '🤝' },
+];
+
+const createEmptyFormData = () => ({
+  title: '',
+  description: '',
+  status: 'todo',
+  priority: 'medium',
+  category: '',
+  dueDate: '',
+  scheduleDate: '',
+  scheduleStartTime: '',
+  scheduleEndTime: '',
+  tags: [],
+  subtasks: [],
+});
+
+const getTodayISO = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const inferModeFromTask = (taskData) => {
+  if (taskData?.scheduleStart && taskData?.scheduleEnd) {
+    return taskData?.tags?.includes('appointment') ? 'appointment' : 'event';
+  }
+  return 'todo';
+};
+
+const applyModeDefaults = (mode, draftData) => {
+  const nextData = { ...draftData };
+
+  if (mode === 'todo') {
+    nextData.scheduleDate = '';
+    nextData.scheduleStartTime = '';
+    nextData.scheduleEndTime = '';
+    return nextData;
+  }
+
+  if (!nextData.scheduleDate) {
+    nextData.scheduleDate = getTodayISO();
+  }
+
+  if (!nextData.scheduleStartTime) {
+    nextData.scheduleStartTime = '09:00';
+  }
+
+  if (!nextData.scheduleEndTime) {
+    nextData.scheduleEndTime = '10:00';
+  }
+
+  if (mode === 'appointment') {
+    nextData.priority = 'high';
+  }
+
+  return nextData;
+};
+
+const TaskForm = ({ task, createMode = 'todo', onSubmit, onCancel }) => {
   // ===== KHỞI TẠO STATE =====
   // Nếu đang chỉnh sửa → dùng dữ liệu task hiện tại
   // Nếu tạo mới → dùng giá trị mặc định
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    status: 'todo',
-    priority: 'medium',
-    category: '',
-    dueDate: '',
-    scheduleDate: '',
-    scheduleStartTime: '',
-    scheduleEndTime: '',
-    tags: [],
-    subtasks: [],
-  });
+  const [entryType, setEntryType] = useState(createMode || 'todo');
+  const [formData, setFormData] = useState(() =>
+    applyModeDefaults(createMode || 'todo', createEmptyFormData())
+  );
 
   const [categories, setCategories] = useState([]);  // Danh sách danh mục
   const [newTag, setNewTag] = useState('');            // Tag mới đang nhập
@@ -38,12 +93,24 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState('');
 
-  // Tải dữ liệu ban đầu
+  // Tải dữ liệu danh mục
+  const loadCategories = async () => {
+    try {
+      const response = await categoryService.getCategories();
+      setCategories(response.data);
+    } catch (error) {
+      console.error('Lỗi tải danh mục:', error);
+    }
+  };
+
   useEffect(() => {
     loadCategories();
+  }, []);
 
+  useEffect(() => {
     // Nếu đang chỉnh sửa → điền dữ liệu task vào form
     if (task) {
+      setEntryType(inferModeFromTask(task));
       setFormData({
         title: task.title || '',
         description: task.description || '',
@@ -61,18 +128,14 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
         tags: task.tags || [],
         subtasks: task.subtasks || [],
       });
-    }
-  }, [task]);
 
-  // Tải danh sách danh mục
-  const loadCategories = async () => {
-    try {
-      const response = await categoryService.getCategories();
-      setCategories(response.data);
-    } catch (error) {
-      console.error('Lỗi tải danh mục:', error);
+      return;
     }
-  };
+
+    const mode = createMode || 'todo';
+    setEntryType(mode);
+    setFormData(applyModeDefaults(mode, createEmptyFormData()));
+  }, [task, createMode]);
 
   // Xử lý thay đổi input
   const handleChange = (e) => {
@@ -81,6 +144,12 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const handleModeChange = (mode) => {
+    setEntryType(mode);
+    setFormError('');
+    setFormData((prev) => applyModeDefaults(mode, prev));
   };
 
   // ===== QUẢN LÝ TAGS =====
@@ -125,12 +194,13 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
     setFormError('');
 
     try {
+      const requiresSchedule = entryType === 'event' || entryType === 'appointment';
       const hasAnyScheduleField =
         formData.scheduleDate || formData.scheduleStartTime || formData.scheduleEndTime;
 
-      if (hasAnyScheduleField) {
+      if (requiresSchedule || hasAnyScheduleField) {
         if (!formData.scheduleDate || !formData.scheduleStartTime || !formData.scheduleEndTime) {
-          throw new Error('Vui lòng nhập đủ ngày, giờ bắt đầu và giờ kết thúc cho thời khóa biểu');
+          throw new Error('Vui lòng nhập đủ ngày, giờ bắt đầu và giờ kết thúc');
         }
 
         const startDateTime = new Date(`${formData.scheduleDate}T${formData.scheduleStartTime}:00`);
@@ -141,20 +211,37 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
         }
       }
 
-      const scheduleStart = hasAnyScheduleField
+      const normalizedTags = (formData.tags || [])
+        .map((tag) => tag.trim())
+        .filter(Boolean)
+        .filter((tag, index, arr) => arr.indexOf(tag) === index);
+
+      const tags = entryType === 'appointment'
+        ? [...new Set([...normalizedTags, 'appointment'])]
+        : normalizedTags.filter((tag) => tag.toLowerCase() !== 'appointment');
+
+      const scheduleStart = (requiresSchedule || hasAnyScheduleField)
         ? new Date(`${formData.scheduleDate}T${formData.scheduleStartTime}:00`).toISOString()
         : null;
-      const scheduleEnd = hasAnyScheduleField
+      const scheduleEnd = (requiresSchedule || hasAnyScheduleField)
         ? new Date(`${formData.scheduleDate}T${formData.scheduleEndTime}:00`).toISOString()
         : null;
+
+      const status = entryType === 'todo' ? formData.status : 'todo';
+      const priority = entryType === 'todo'
+        ? formData.priority
+        : (entryType === 'appointment' ? 'high' : 'medium');
 
       // Chuẩn bị dữ liệu gửi lên
       const submitData = {
         ...formData,
+        status,
+        priority,
         category: formData.category || null,
-        dueDate: formData.dueDate || null,
+        dueDate: formData.dueDate || (scheduleStart ? formData.scheduleDate : null),
         scheduleStart,
         scheduleEnd,
+        tags,
       };
 
       delete submitData.scheduleDate;
@@ -173,11 +260,33 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
     <div className="modal-overlay" onClick={onCancel}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>{task ? '✏️ Chỉnh sửa Công việc' : '➕ Tạo Công việc Mới'}</h2>
+          <h2>{task ? '✏️ Chỉnh sửa mục lịch' : '➕ Tạo mục mới'}</h2>
           <button className="btn-close" onClick={onCancel}>✕</button>
         </div>
 
         <form onSubmit={handleSubmit} className="task-form">
+          <div className="task-type-tabs" role="tablist" aria-label="Loại mục">
+            {MODE_OPTIONS.map((mode) => (
+              <button
+                type="button"
+                key={mode.key}
+                className={`task-type-tab ${entryType === mode.key ? 'active' : ''}`}
+                role="tab"
+                aria-selected={entryType === mode.key}
+                onClick={() => handleModeChange(mode.key)}
+              >
+                <span aria-hidden="true">{mode.icon}</span>
+                <span>{mode.label}</span>
+              </button>
+            ))}
+          </div>
+
+          <p className="task-mode-hint">
+            {entryType === 'event' && 'Sự kiện sẽ xuất hiện trên lịch tuần và yêu cầu khung giờ cụ thể.'}
+            {entryType === 'todo' && 'Việc cần làm phù hợp cho nhiệm vụ chưa cần chặn lịch theo giờ.'}
+            {entryType === 'appointment' && 'Lên lịch hẹn giúp đặt một cuộc gặp với khung giờ rõ ràng.'}
+          </p>
+
           {formError && <div className="alert alert-error">{formError}</div>}
 
           {/* Tiêu đề */}
@@ -194,97 +303,131 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
             />
           </div>
 
-          {/* Mô tả */}
-          <div className="form-group">
-            <label>📝 Mô tả</label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="Mô tả chi tiết công việc..."
-              rows="3"
-            />
-          </div>
+          {entryType === 'todo' ? (
+            <>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>📊 Trạng thái</label>
+                  <select name="status" value={formData.status} onChange={handleChange}>
+                    <option value="todo">📝 Cần làm</option>
+                    <option value="in-progress">🔄 Đang làm</option>
+                    <option value="completed">✅ Hoàn thành</option>
+                    <option value="archived">📦 Lưu trữ</option>
+                  </select>
+                </div>
 
-          {/* Hàng 2 cột: Trạng thái + Ưu tiên */}
-          <div className="form-row">
-            <div className="form-group">
-              <label>📊 Trạng thái</label>
-              <select name="status" value={formData.status} onChange={handleChange}>
-                <option value="todo">📝 Cần làm</option>
-                <option value="in-progress">🔄 Đang làm</option>
-                <option value="completed">✅ Hoàn thành</option>
-                <option value="archived">📦 Lưu trữ</option>
-              </select>
-            </div>
+                <div className="form-group">
+                  <label>🔥 Mức độ ưu tiên</label>
+                  <select name="priority" value={formData.priority} onChange={handleChange}>
+                    <option value="low">Thấp</option>
+                    <option value="medium">Trung bình</option>
+                    <option value="high">Cao</option>
+                    <option value="urgent">Khẩn cấp</option>
+                  </select>
+                </div>
+              </div>
 
-            <div className="form-group">
-              <label>🔥 Mức độ ưu tiên</label>
-              <select name="priority" value={formData.priority} onChange={handleChange}>
-                <option value="low">Thấp</option>
-                <option value="medium">Trung bình</option>
-                <option value="high">Cao</option>
-                <option value="urgent">Khẩn cấp</option>
-              </select>
-            </div>
-          </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>📁 Danh mục</label>
+                  <select name="category" value={formData.category} onChange={handleChange}>
+                    <option value="">-- Không chọn --</option>
+                    {categories.map((cat) => (
+                      <option key={cat._id} value={cat._id}>{cat.name}</option>
+                    ))}
+                  </select>
+                </div>
 
-          {/* Hàng 2 cột: Danh mục + Deadline */}
-          <div className="form-row">
-            <div className="form-group">
-              <label>📁 Danh mục</label>
-              <select name="category" value={formData.category} onChange={handleChange}>
-                <option value="">-- Không chọn --</option>
-                {categories.map((cat) => (
-                  <option key={cat._id} value={cat._id}>{cat.name}</option>
-                ))}
-              </select>
-            </div>
+                <div className="form-group">
+                  <label>📅 Hạn hoàn thành</label>
+                  <input
+                    type="date"
+                    name="dueDate"
+                    value={formData.dueDate}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
 
-            <div className="form-group">
-              <label>📅 Hạn hoàn thành</label>
-              <input
-                type="date"
-                name="dueDate"
-                value={formData.dueDate}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
+              <div className="form-group">
+                <label>📝 Mô tả</label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  placeholder="Mô tả chi tiết công việc..."
+                  rows="3"
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="form-row form-row-3">
+                <div className="form-group">
+                  <label>🗓️ Ngày</label>
+                  <input
+                    type="date"
+                    name="scheduleDate"
+                    value={formData.scheduleDate}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
 
-          {/* Hàng 3 cột: Thời khóa biểu */}
-          <div className="form-row form-row-3">
-            <div className="form-group">
-              <label>🗓️ Ngày học/làm</label>
-              <input
-                type="date"
-                name="scheduleDate"
-                value={formData.scheduleDate}
-                onChange={handleChange}
-              />
-            </div>
+                <div className="form-group">
+                  <label>⏰ Bắt đầu</label>
+                  <input
+                    type="time"
+                    name="scheduleStartTime"
+                    value={formData.scheduleStartTime}
+                    onChange={handleChange}
+                    step="300"
+                    required
+                  />
+                </div>
 
-            <div className="form-group">
-              <label>⏰ Bắt đầu</label>
-              <input
-                type="time"
-                name="scheduleStartTime"
-                value={formData.scheduleStartTime}
-                onChange={handleChange}
-              />
-            </div>
+                <div className="form-group">
+                  <label>⏱️ Kết thúc</label>
+                  <input
+                    type="time"
+                    name="scheduleEndTime"
+                    value={formData.scheduleEndTime}
+                    onChange={handleChange}
+                    step="300"
+                    required
+                  />
+                </div>
+              </div>
+              <p className="schedule-hint">Nhập theo định dạng 24 giờ, ví dụ 13:30 - 15:00.</p>
 
-            <div className="form-group">
-              <label>⏱️ Kết thúc</label>
-              <input
-                type="time"
-                name="scheduleEndTime"
-                value={formData.scheduleEndTime}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-          <p className="schedule-hint">Mẹo: Chọn giờ theo cùng một ngày, ví dụ 13:30 đến 15:00.</p>
+              {entryType === 'appointment' && (
+                <div className="appointment-note">
+                  <strong>💡 Mẹo:</strong> Bạn có thể ghi tên người hẹn và nội dung gặp ở phần mô tả.
+                </div>
+              )}
+
+              <div className="form-group">
+                <label>{entryType === 'appointment' ? '📝 Nội dung lịch hẹn' : '📝 Mô tả sự kiện'}</label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  placeholder={entryType === 'appointment' ? 'Ví dụ: Họp nhóm đồ án với team frontend' : 'Mô tả nội dung sự kiện...'}
+                  rows="3"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>📁 Danh mục</label>
+                <select name="category" value={formData.category} onChange={handleChange}>
+                  <option value="">-- Không chọn --</option>
+                  {categories.map((cat) => (
+                    <option key={cat._id} value={cat._id}>{cat.name}</option>
+                  ))}
+                </select>
+              </div>
+            </>
+          )}
 
           {/* Tags */}
           <div className="form-group">
@@ -311,32 +454,33 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
             </div>
           </div>
 
-          {/* Subtasks */}
-          <div className="form-group">
-            <label>☑️ Công việc con</label>
-            <div className="tag-input-row">
-              <input
-                type="text"
-                value={newSubtask}
-                onChange={(e) => setNewSubtask(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSubtask())}
-                placeholder="Nhập công việc con..."
-              />
-              <button type="button" className="btn btn-small btn-primary" onClick={addSubtask}>
-                Thêm
-              </button>
+          {entryType === 'todo' && (
+            <div className="form-group">
+              <label>☑️ Công việc con</label>
+              <div className="tag-input-row">
+                <input
+                  type="text"
+                  value={newSubtask}
+                  onChange={(e) => setNewSubtask(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSubtask())}
+                  placeholder="Nhập công việc con..."
+                />
+                <button type="button" className="btn btn-small btn-primary" onClick={addSubtask}>
+                  Thêm
+                </button>
+              </div>
+              <ul className="subtask-list">
+                {formData.subtasks.map((subtask, index) => (
+                  <li key={index} className="subtask-item">
+                    <span className={subtask.completed ? 'subtask-done' : ''}>
+                      {subtask.completed ? '✅' : '⬜'} {subtask.title}
+                    </span>
+                    <button type="button" onClick={() => removeSubtask(index)} className="btn-remove">✕</button>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <ul className="subtask-list">
-              {formData.subtasks.map((subtask, index) => (
-                <li key={index} className="subtask-item">
-                  <span className={subtask.completed ? 'subtask-done' : ''}>
-                    {subtask.completed ? '✅' : '⬜'} {subtask.title}
-                  </span>
-                  <button type="button" onClick={() => removeSubtask(index)} className="btn-remove">✕</button>
-                </li>
-              ))}
-            </ul>
-          </div>
+          )}
 
           {/* Nút submit */}
           <div className="form-actions">
@@ -344,7 +488,7 @@ const TaskForm = ({ task, onSubmit, onCancel }) => {
               Hủy bỏ
             </button>
             <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Đang xử lý...' : (task ? '💾 Lưu thay đổi' : '➕ Tạo công việc')}
+              {loading ? 'Đang xử lý...' : (task ? '💾 Lưu thay đổi' : '➕ Tạo mục mới')}
             </button>
           </div>
         </form>

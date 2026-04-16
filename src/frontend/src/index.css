@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
 
 * {
   margin: 0;
@@ -7,6 +7,8 @@
 }
 
 :root {
+  --font-base: 'Nunito', 'Segoe UI', Tahoma, sans-serif;
+
   --duo-green: #5fb9ff;
   --duo-green-dark: #3fa8f0;
   --duo-green-darker: #2f7fbd;
@@ -53,6 +55,12 @@
   --radius-lg: 22px;
 }
 
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 html,
 body,
 #root {
@@ -60,7 +68,8 @@ body,
 }
 
 body {
-  font-family: 'Nunito', 'Segoe UI', Tahoma, sans-serif;
+  font-family: var(--font-base);
+  font-size: 1rem;
   line-height: 1.55;
   color: var(--ink-900);
   background:
@@ -75,7 +84,8 @@ h1,
 h2,
 h3,
 h4 {
-  font-family: 'Fredoka', 'Nunito', sans-serif;
+  font-family: inherit;
+  font-weight: 800;
   letter-spacing: 0.01em;
 }
 
