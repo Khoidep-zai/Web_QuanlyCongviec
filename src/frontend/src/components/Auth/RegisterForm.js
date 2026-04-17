@@ -21,6 +21,7 @@ const RegisterForm = ({ onSwitch }) => {
     password: '',
     confirmPassword: '',
   });
+  const [successMessage, setSuccessMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -34,12 +35,14 @@ const RegisterForm = ({ onSwitch }) => {
       [e.target.name]: e.target.value,
     });
     setError('');
+    setSuccessMessage('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setSuccessMessage('');
 
     // Kiểm tra mật khẩu xác nhận có khớp không
     if (formData.password !== formData.confirmPassword) {
@@ -56,13 +59,13 @@ const RegisterForm = ({ onSwitch }) => {
     }
 
     try {
-      // Gọi API đăng ký (không gửi confirmPassword lên server)
       await register({
         fullName: formData.fullName,
         username: formData.username,
-        email: formData.email,
+        email: formData.email.trim().toLowerCase(),
         password: formData.password,
       });
+      setSuccessMessage('Đăng ký thành công! Đang chuyển vào hệ thống...');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -78,6 +81,7 @@ const RegisterForm = ({ onSwitch }) => {
           <p>Đăng ký để bắt đầu quản lý công việc</p>
         </div>
 
+        {successMessage && <div className="alert alert-success">{successMessage}</div>}
         {error && <div className="alert alert-error">{error}</div>}
 
         <form onSubmit={handleSubmit}>

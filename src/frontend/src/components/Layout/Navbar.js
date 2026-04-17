@@ -11,9 +11,11 @@
 
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 
 const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
 
   return (
     <nav className="navbar">
@@ -29,6 +31,16 @@ const Navbar = () => {
       {/* Menu bên phải - hiển thị khi đã đăng nhập */}
       {isAuthenticated && (
         <div className="navbar-menu">
+          <button
+            type="button"
+            className="theme-toggle-btn"
+            onClick={toggleTheme}
+            aria-label={isDarkMode ? 'Chuyen sang giao dien sang' : 'Chuyen sang giao dien toi'}
+            title={isDarkMode ? 'Che do sang' : 'Che do toi'}
+          >
+            <span aria-hidden="true">{isDarkMode ? '☀️' : '🌙'}</span>
+            <span>{isDarkMode ? 'Sang' : 'Toi'}</span>
+          </button>
           <span className="navbar-streak">🔥 Nhịp độ tốt</span>
           <span className="navbar-user">
             Xin chào, <strong>{user?.fullName || user?.username}</strong>

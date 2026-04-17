@@ -99,6 +99,12 @@ const extractUserProfile = (payload) => {
   return null;
 };
 
+const persistAuthSession = (authData, setUser) => {
+  localStorage.setItem('token', authData.token);
+  localStorage.setItem('user', JSON.stringify(authData));
+  setUser(authData);
+};
+
 // ===== TẠO CONTEXT =====
 // Context là "kho chứa" dữ liệu dùng chung
 const AuthContext = createContext(null);
@@ -169,15 +175,9 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.register(userData);
       const payload = extractAuthPayload(response, 'Đăng ký');
       const authData = extractAuthData(payload, 'Đăng ký');
+      persistAuthSession(authData, setUser);
       
-      // Lưu token và user vào localStorage
-      localStorage.setItem('token', authData.token);
-      localStorage.setItem('user', JSON.stringify(authData));
-      
-      // Cập nhật state
-      setUser(authData);
-      
-      return response;
+      return payload;
     } catch (err) {
       const message = normalizeAuthErrorMessage(err, 'Đăng ký thất bại');
       setError(message);
@@ -192,13 +192,8 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.login(credentials);
       const payload = extractAuthPayload(response, 'Đăng nhập');
       const authData = extractAuthData(payload, 'Đăng nhập');
-      
-      // Lưu token và user vào localStorage
-      localStorage.setItem('token', authData.token);
-      localStorage.setItem('user', JSON.stringify(authData));
-      
-      // Cập nhật state
-      setUser(authData);
+
+      persistAuthSession(authData, setUser);
       
       return response;
     } catch (err) {

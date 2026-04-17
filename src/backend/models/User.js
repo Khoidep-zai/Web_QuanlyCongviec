@@ -86,7 +86,7 @@ const userSchema = new mongoose.Schema(
     // Email đã xác minh chưa
     emailVerified: {
       type: Boolean,
-      default: false,
+      default: true,
     },
 
     // Thời điểm đăng nhập gần nhất

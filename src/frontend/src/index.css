@@ -53,6 +53,72 @@
 
   --radius: 14px;
   --radius-lg: 22px;
+
+  --page-spot-1: rgba(120, 188, 255, 0.24);
+  --page-spot-2: rgba(71, 182, 255, 0.2);
+  --page-background: var(--surface-sky);
+  --panel-bg: var(--surface-white);
+  --panel-soft-bg: var(--surface-cream);
+  --panel-muted-bg: var(--surface-mint);
+  --border-subtle: #c5d8ea;
+  --border-strong: var(--ink-strong);
+  --input-bg: #ffffff;
+  --input-bg-focus: #f8fdff;
+  --text-primary: var(--ink-900);
+  --text-secondary: var(--ink-700);
+  --text-muted: #5f7891;
+
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --duo-green: #48a9f0;
+  --duo-green-dark: #3a97d8;
+  --duo-green-darker: #2f7cb2;
+  --duo-yellow: #ffd980;
+  --duo-blue: #4ab4ff;
+  --duo-blue-dark: #98d6ff;
+
+  --surface-white: #1a2733;
+  --surface-cream: #17232d;
+  --surface-mint: #1f3140;
+  --surface-sky: #0f1a22;
+
+  --ink-900: #e5f0fb;
+  --ink-800: #c8d9ea;
+  --ink-700: #aac2d8;
+  --ink-strong: #476073;
+
+  --gray-50: #243444;
+  --gray-100: #2a3b4b;
+  --gray-200: #324557;
+  --gray-300: #3e5569;
+  --gray-400: #54708a;
+  --gray-500: #6c87a1;
+  --gray-600: #89a3ba;
+  --gray-700: #a7bdd1;
+  --gray-800: #d4e4f3;
+
+  --shadow-sm: 0 2px 6px rgba(3, 8, 14, 0.35);
+  --shadow: 0 10px 22px rgba(4, 11, 18, 0.4);
+  --shadow-md: 0 14px 28px rgba(4, 11, 18, 0.46);
+  --shadow-lg: 0 20px 38px rgba(2, 8, 14, 0.5);
+
+  --page-spot-1: rgba(80, 148, 210, 0.24);
+  --page-spot-2: rgba(34, 94, 144, 0.22);
+  --page-background: #0f1a22;
+  --panel-bg: #1a2733;
+  --panel-soft-bg: #17232d;
+  --panel-muted-bg: #1f3140;
+  --border-subtle: #405b70;
+  --border-strong: #4f6c82;
+  --input-bg: #1b2d3b;
+  --input-bg-focus: #22384a;
+  --text-primary: #e5f0fb;
+  --text-secondary: #c0d5e9;
+  --text-muted: #9bb4c9;
+
+  color-scheme: dark;
 }
 
 html {
@@ -65,19 +131,22 @@ html,
 body,
 #root {
   min-height: 100%;
+  width: 100%;
 }
 
 body {
   font-family: var(--font-base);
   font-size: 1rem;
   line-height: 1.55;
-  color: var(--ink-900);
+  color: var(--text-primary);
   background:
-    radial-gradient(circle at 10% 5%, rgba(120, 188, 255, 0.24), transparent 34%),
-    radial-gradient(circle at 90% 92%, rgba(71, 182, 255, 0.2), transparent 35%),
-    var(--surface-sky);
+    radial-gradient(circle at 10% 5%, var(--page-spot-1), transparent 34%),
+    radial-gradient(circle at 90% 92%, var(--page-spot-2), transparent 35%),
+    var(--page-background);
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 h1,
@@ -98,4 +167,12 @@ textarea {
 
 a {
   color: inherit;
+}
+
+img,
+svg,
+canvas,
+video {
+  max-width: 100%;
+  height: auto;
 }

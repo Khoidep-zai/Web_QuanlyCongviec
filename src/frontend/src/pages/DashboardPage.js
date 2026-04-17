@@ -134,13 +134,13 @@ const DashboardPage = () => {
           />
 
           <section className="calendar-bottom-grid">
-            <DeadlineAlerts />
             <TaskList
               filter={activeFilter}
               categoryFilter={categoryFilter}
               onStatsChange={setStats}
               quickCreateRequest={quickCreateRequest}
             />
+            <DeadlineAlerts />
           </section>
         </main>
       </div>

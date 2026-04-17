@@ -20,6 +20,7 @@
 
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Category = require('../models/Category');
 const { createDefaultCategories } = require('../config/database');
 
 // =============================================
@@ -43,6 +44,17 @@ const generateToken = (id) => {
   });
 };
 
+const normalizeIdentifier = (value) => String(value || '').trim();
+
+const normalizeEmail = (value) => normalizeIdentifier(value).toLowerCase();
+
+const ensureUserDefaultCategories = async (userId) => {
+  const existingCategoryCount = await Category.countDocuments({ userId });
+  if (existingCategoryCount === 0) {
+    await createDefaultCategories(userId);
+  }
+};
+
 // =============================================
 // ĐĂNG KÝ TÀI KHOẢN MỚI
 // =============================================
@@ -60,42 +72,49 @@ const generateToken = (id) => {
  */
 const register = async (req, res) => {
   try {
-    const { username, email, password, fullName } = req.body;
+    const username = normalizeIdentifier(req.body.username);
+    const email = normalizeEmail(req.body.email);
+    const password = req.body.password;
+    const fullName = normalizeIdentifier(req.body.fullName);
 
-    // Kiểm tra email đã được đăng ký chưa
-    const existingUser = await User.findOne({
-      $or: [{ email }, { username }],
-    });
-
-    if (existingUser) {
+    if (!username || !email || !password) {
       return res.status(400).json({
         success: false,
-        message:
-          existingUser.email === email
-            ? 'Email này đã được đăng ký'
-            : 'Tên đăng nhập đã tồn tại',
+        message: 'Vui long nhap day du ten dang nhap, email va mat khau',
       });
     }
 
-    // Tạo người dùng mới trong database
-    // Mật khẩu sẽ tự động được mã hóa bởi middleware pre('save') trong User model
+    const existingByEmail = await User.findOne({ email });
+    if (existingByEmail) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email nay da duoc dang ky',
+      });
+    }
+
+    const existingByUsername = await User.findOne({ username });
+    if (existingByUsername) {
+      return res.status(400).json({
+        success: false,
+        message: 'Ten dang nhap da ton tai',
+      });
+    }
+
     const user = await User.create({
       username,
       email,
       password,
       fullName: fullName || '',
+      emailVerified: true,
     });
 
-    // Tự động tạo 5 danh mục mặc định cho user mới
-    await createDefaultCategories(user._id);
+    await ensureUserDefaultCategories(user._id);
 
-    // Tạo token đăng nhập
     const token = generateToken(user._id);
 
-    // Trả về thông tin user (KHÔNG trả về password)
     res.status(201).json({
       success: true,
-      message: 'Đăng ký thành công!',
+      message: 'Dang ky thanh cong!',
       data: {
         _id: user._id,
         username: user.username,
@@ -108,10 +127,11 @@ const register = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Lỗi server khi đăng ký: ' + error.message,
+      message: 'Loi server khi dang ky: ' + error.message,
     });
   }
 };
+
 
 // =============================================
 // ĐĂNG NHẬP

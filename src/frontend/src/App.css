@@ -100,6 +100,7 @@
   grid-template-columns: 1.1fr 1fr;
   gap: 24px;
   padding: 28px;
+  position: relative;
   align-items: stretch;
   background:
     radial-gradient(circle at 12% 12%, rgba(130, 193, 255, 0.28), transparent 34%),
@@ -243,17 +244,24 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--surface-sky);
+  width: 100%;
+  background: var(--page-background);
 }
 
 .navbar {
   position: sticky;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   height: 78px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 14px;
   padding: 0 20px;
   color: var(--surface-white);
@@ -268,6 +276,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
 }
 
 .navbar-logo {
@@ -300,6 +309,8 @@
   gap: 10px;
   flex-wrap: wrap;
   justify-content: flex-end;
+  min-width: 0;
+  flex: 1 1 420px;
 }
 
 .navbar-streak {
@@ -316,6 +327,34 @@
 .navbar-user {
   font-size: 0.95rem;
   opacity: 0.98;
+  overflow-wrap: anywhere;
+}
+
+.theme-toggle-btn {
+  border: 2px solid var(--ink-strong);
+  border-bottom-width: 4px;
+  border-radius: 999px;
+  background: var(--panel-soft-bg);
+  color: var(--ink-900);
+  min-height: 40px;
+  padding: 6px 12px;
+  font-size: 0.84rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.theme-toggle-btn:hover {
+  background: var(--panel-muted-bg);
+}
+
+.auth-theme-toggle {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 4;
 }
 
 .btn-logout {
@@ -335,6 +374,8 @@
   gap: 20px;
   padding: 20px;
   flex: 1;
+  align-items: start;
+  min-width: 0;
 }
 
 .sidebar {
@@ -642,9 +683,9 @@
 
 .category-name {
   flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .btn-delete-category {
@@ -709,6 +750,8 @@
   min-height: calc(100vh - 78px);
   overflow-y: auto;
   background: var(--surface-sky);
+  min-width: 0;
+  width: 100%;
 }
 
 .main-container .main-content {
@@ -722,13 +765,15 @@
   display: grid;
   gap: 14px;
   align-content: start;
+  min-width: 0;
 }
 
 .calendar-bottom-grid {
   display: grid;
-  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
   gap: 14px;
   align-items: start;
+  min-width: 0;
 }
 
 .calendar-bottom-grid .deadline-alerts,
@@ -926,6 +971,8 @@
   border-radius: 22px;
   padding: 16px;
   background: var(--surface-white);
+  min-width: 0;
+  width: 100%;
 }
 
 .task-toolbar {
@@ -938,7 +985,7 @@
 
 .search-box {
   flex: 1;
-  min-width: 220px;
+  min-width: min(220px, 100%);
 }
 
 .search-box input,
@@ -954,7 +1001,7 @@
   border-radius: 14px;
   padding: 11px 13px;
   color: var(--ink-900);
-  background: #fff;
+  background: var(--input-bg);
   font-size: 1rem;
   transition: border-color 0.2s ease, background-color 0.2s ease;
 }
@@ -962,7 +1009,7 @@
 .search-box input::placeholder,
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-  color: #7f9ab0;
+  color: var(--text-muted);
 }
 
 .search-box input:focus,
@@ -975,19 +1022,21 @@
 .input-small:focus {
   outline: none;
   border-color: var(--duo-blue);
-  background: #f8fdff;
+  background: var(--input-bg-focus);
 }
 
 .sort-controls {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .task-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(290px, 100%), 1fr));
   gap: 12px;
+  min-width: 0;
 }
 
 .task-card {
@@ -996,6 +1045,7 @@
   border-radius: 18px;
   display: flex;
   overflow: hidden;
+  min-width: 0;
   transition: transform 0.18s ease, box-shadow 0.18s ease;
   animation: slideUp 0.38s ease-out both;
 }
@@ -1055,6 +1105,7 @@
   font-size: 1.02rem;
   line-height: 1.35;
   color: var(--ink-900);
+  overflow-wrap: anywhere;
 }
 
 .completed-title {
@@ -1066,6 +1117,7 @@
   color: var(--ink-700);
   font-size: 0.9rem;
   line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .task-card-meta {
@@ -1081,6 +1133,7 @@
   border: 1px solid #cbddee;
   border-radius: 999px;
   padding: 3px 8px;
+  overflow-wrap: anywhere;
 }
 
 .overdue-text {
@@ -1105,6 +1158,7 @@
   padding: 40px 16px;
   color: #4f6a84;
   background: #f2f9ff;
+  overflow-wrap: anywhere;
 }
 
 .empty-icon {
@@ -1145,6 +1199,8 @@
   padding: 14px;
   margin-bottom: 14px;
   animation: slideUp 0.4s ease-out both;
+  min-width: 0;
+  width: 100%;
 }
 
 .deadline-alerts h3,
@@ -1163,6 +1219,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
   border: 2px solid;
   border-radius: 14px;
   padding: 10px 12px;
@@ -1289,7 +1346,7 @@
 .calendar-live-meta {
   display: grid;
   gap: 2px;
-  min-width: 220px;
+  min-width: min(220px, 100%);
 }
 
 .calendar-live-meta strong {
@@ -1319,6 +1376,7 @@
   font-size: 0.8rem;
   font-weight: 800;
   padding: 5px 10px;
+  overflow-wrap: anywhere;
 }
 
 .timetable-header {
@@ -1426,11 +1484,12 @@
   border: 1px solid #c7ddf0;
   border-radius: 14px;
   max-height: 72vh;
+  max-width: 100%;
 }
 
 .timetable-grid {
   width: 100%;
-  min-width: 980px;
+  min-width: 920px;
   border-collapse: collapse;
 }
 
@@ -1535,7 +1594,7 @@
 }
 
 .month-view-weekdays {
-  min-width: 920px;
+  min-width: 860px;
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 6px;
@@ -1552,7 +1611,7 @@
 }
 
 .month-view-grid {
-  min-width: 920px;
+  min-width: 860px;
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 6px;
@@ -1570,6 +1629,7 @@
   flex-direction: column;
   gap: 6px;
   cursor: pointer;
+  min-width: 0;
 }
 
 .month-day-cell:hover {
@@ -1624,9 +1684,8 @@
   color: #2d607f;
   font-size: 0.72rem;
   padding: 2px 5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .month-event-pill.holiday {
@@ -2206,6 +2265,11 @@ textarea:focus-visible {
     padding: 16px;
   }
 
+  .auth-theme-toggle {
+    top: 12px;
+    right: 12px;
+  }
+
   .auth-welcome {
     order: 2;
   }
@@ -2310,6 +2374,15 @@ textarea:focus-visible {
     left: 0;
     right: auto;
   }
+
+  .timetable-grid {
+    min-width: 760px;
+  }
+
+  .month-view-weekdays,
+  .month-view-grid {
+    min-width: 680px;
+  }
 }
 
 @media (max-width: 620px) {
@@ -2364,5 +2437,277 @@ textarea:focus-visible {
   .year-view-grid {
     grid-template-columns: 1fr;
   }
+
+  .auth-theme-toggle {
+    top: 10px;
+    right: 10px;
+    min-height: 36px;
+    padding: 4px 10px;
+  }
+
+  .timetable-grid {
+    min-width: 620px;
+  }
+
+  .month-view-weekdays,
+  .month-view-grid {
+    min-width: 560px;
+  }
+}
+
+/* =============================================
+   11. LAYOUT HARDENING + THEME MODES
+   ============================================= */
+.app-layout,
+.auth-page,
+.auth-welcome,
+.auth-form-area,
+.auth-card,
+.sidebar,
+.task-list-container,
+.deadline-alerts,
+.timetable-board,
+.admin-table-wrapper,
+.calendar-hero,
+.dashboard-intro,
+.dashboard-stat-card,
+.admin-stat-card,
+.modal-content,
+.month-view-wrap,
+.year-view-wrap,
+.create-task-dropdown,
+.calendar-filter-menu,
+.calendar-live-panel,
+.navbar,
+.btn,
+.theme-toggle-btn {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.main-container > *,
+.calendar-bottom-grid > *,
+.task-card-content,
+.auth-container,
+.navbar-brand > div,
+.search-box,
+.sort-controls,
+.timetable-actions,
+.admin-table-scroll {
+  min-width: 0;
+}
+
+.navbar-title,
+.navbar-subtitle,
+.navbar-user,
+.deadline-alert-item strong,
+.pagination-info,
+.task-meta-item,
+.admin-table td,
+.timetable-task-chip strong,
+.calendar-live-badge {
+  overflow-wrap: anywhere;
+}
+
+.input-small,
+.input-color {
+  border-color: var(--border-subtle);
+  background: var(--input-bg);
+  color: var(--ink-900);
+}
+
+:root[data-theme='dark'] .auth-page {
+  background:
+    radial-gradient(circle at 12% 12%, rgba(76, 148, 214, 0.2), transparent 34%),
+    radial-gradient(circle at 90% 88%, rgba(35, 109, 172, 0.22), transparent 38%),
+    linear-gradient(160deg, #14212b 0%, #152430 46%, #111a22 100%);
+}
+
+:root[data-theme='dark'] .app-layout,
+:root[data-theme='dark'] .main-content {
+  background: var(--page-background);
+}
+
+:root[data-theme='dark'] .navbar {
+  border-bottom-color: #35516a;
+  box-shadow: 0 8px 22px rgba(3, 8, 14, 0.5);
+  background:
+    radial-gradient(circle at 8% 20%, rgba(120, 177, 225, 0.25), transparent 30%),
+    linear-gradient(90deg, #2e4f68 0%, #2a455b 50%, #223b4d 100%);
+}
+
+:root[data-theme='dark'] .navbar-streak {
+  border-color: rgba(255, 255, 255, 0.34);
+  background: rgba(4, 11, 18, 0.32);
+}
+
+:root[data-theme='dark'] .theme-toggle-btn,
+:root[data-theme='dark'] .btn-logout {
+  border-color: #55738b;
+  background: #223746;
+  color: var(--text-primary);
+}
+
+:root[data-theme='dark'] .btn-logout:hover:not(:disabled),
+:root[data-theme='dark'] .theme-toggle-btn:hover {
+  background: #2a4356;
+}
+
+:root[data-theme='dark'] .auth-welcome,
+:root[data-theme='dark'] .auth-form-area,
+:root[data-theme='dark'] .auth-card,
+:root[data-theme='dark'] .sidebar,
+:root[data-theme='dark'] .task-list-container,
+:root[data-theme='dark'] .deadline-alerts,
+:root[data-theme='dark'] .timetable-board,
+:root[data-theme='dark'] .admin-table-wrapper,
+:root[data-theme='dark'] .admin-stat-card,
+:root[data-theme='dark'] .modal-content,
+:root[data-theme='dark'] .month-view-wrap,
+:root[data-theme='dark'] .year-view-wrap,
+:root[data-theme='dark'] .create-task-dropdown,
+:root[data-theme='dark'] .calendar-filter-menu {
+  border-color: var(--border-strong);
+  background: var(--panel-bg);
+  color: var(--text-primary);
+}
+
+:root[data-theme='dark'] .calendar-hero,
+:root[data-theme='dark'] .dashboard-intro,
+:root[data-theme='dark'] .calendar-live-panel {
+  border-color: var(--border-strong);
+  background:
+    radial-gradient(circle at 8% 12%, rgba(95, 151, 199, 0.18), transparent 36%),
+    linear-gradient(180deg, #1a2a38 0%, #152330 100%);
+}
+
+:root[data-theme='dark'] .auth-benefits li,
+:root[data-theme='dark'] .calendar-hero-chip,
+:root[data-theme='dark'] .dashboard-stat-card,
+:root[data-theme='dark'] .task-meta-item,
+:root[data-theme='dark'] .calendar-live-badge,
+:root[data-theme='dark'] .calendar-filter-chip,
+:root[data-theme='dark'] .month-day-count,
+:root[data-theme='dark'] .year-month-card,
+:root[data-theme='dark'] .year-month-card.has-data,
+:root[data-theme='dark'] .timetable-task-chip,
+:root[data-theme='dark'] .dashboard-intro-tag,
+:root[data-theme='dark'] .task-type-tab,
+:root[data-theme='dark'] .tag,
+:root[data-theme='dark'] .subtask-item,
+:root[data-theme='dark'] .filter-count,
+:root[data-theme='dark'] .mini-calendar-section,
+:root[data-theme='dark'] .appointment-note {
+  border-color: var(--border-subtle);
+  background: var(--panel-muted-bg);
+  color: var(--text-secondary);
+}
+
+:root[data-theme='dark'] .task-priority-badge,
+:root[data-theme='dark'] .month-day-cell,
+:root[data-theme='dark'] .calendar-filter-chip.active {
+  border-color: #6f8ea7;
+  background: #223748;
+  color: var(--text-primary);
+}
+
+:root[data-theme='dark'] .month-day-cell:hover,
+:root[data-theme='dark'] .year-month-card:hover,
+:root[data-theme='dark'] .filter-item:hover,
+:root[data-theme='dark'] .category-item:hover,
+:root[data-theme='dark'] .create-task-item:hover,
+:root[data-theme='dark'] .mini-calendar-nav:hover {
+  background: #273f51;
+}
+
+:root[data-theme='dark'] .filter-item.active,
+:root[data-theme='dark'] .category-item.active,
+:root[data-theme='dark'] .month-day-cell.is-selected {
+  border-color: #7ca6c6;
+  background: #2b465a;
+  color: var(--text-primary);
+}
+
+:root[data-theme='dark'] .search-box input,
+:root[data-theme='dark'] .sort-controls select,
+:root[data-theme='dark'] .form-group input,
+:root[data-theme='dark'] .form-group textarea,
+:root[data-theme='dark'] .form-group select,
+:root[data-theme='dark'] .admin-category-form input,
+:root[data-theme='dark'] .admin-category-form select,
+:root[data-theme='dark'] .input-small,
+:root[data-theme='dark'] .input-color {
+  border-color: var(--border-subtle);
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+:root[data-theme='dark'] .search-box input::placeholder,
+:root[data-theme='dark'] .form-group input::placeholder,
+:root[data-theme='dark'] .form-group textarea::placeholder {
+  color: var(--text-muted);
+}
+
+:root[data-theme='dark'] .search-box input:focus,
+:root[data-theme='dark'] .sort-controls select:focus,
+:root[data-theme='dark'] .form-group input:focus,
+:root[data-theme='dark'] .form-group textarea:focus,
+:root[data-theme='dark'] .form-group select:focus,
+:root[data-theme='dark'] .admin-category-form input:focus,
+:root[data-theme='dark'] .admin-category-form select:focus,
+:root[data-theme='dark'] .input-small:focus {
+  background: var(--input-bg-focus);
+}
+
+:root[data-theme='dark'] .task-card,
+:root[data-theme='dark'] .loading-state,
+:root[data-theme='dark'] .empty-state,
+:root[data-theme='dark'] .role-admin,
+:root[data-theme='dark'] .role-user {
+  border-color: var(--border-subtle);
+  background: var(--panel-soft-bg);
+  color: var(--text-secondary);
+}
+
+:root[data-theme='dark'] .task-card-actions,
+:root[data-theme='dark'] .modal-header,
+:root[data-theme='dark'] .form-actions,
+:root[data-theme='dark'] .create-task-item + .create-task-item {
+  border-color: var(--border-subtle);
+}
+
+:root[data-theme='dark'] .timetable-scroll,
+:root[data-theme='dark'] .admin-table th,
+:root[data-theme='dark'] .admin-table td,
+:root[data-theme='dark'] .timetable-grid th,
+:root[data-theme='dark'] .timetable-grid td,
+:root[data-theme='dark'] .month-day-cell,
+:root[data-theme='dark'] .calendar-filter-menu {
+  border-color: var(--border-subtle);
+}
+
+:root[data-theme='dark'] .admin-table th,
+:root[data-theme='dark'] .timetable-grid th,
+:root[data-theme='dark'] .time-slot-label {
+  background: #1f3242;
+  color: var(--text-secondary);
+}
+
+:root[data-theme='dark'] .admin-table td,
+:root[data-theme='dark'] .timetable-grid td,
+:root[data-theme='dark'] .month-day-cell,
+:root[data-theme='dark'] .create-task-item,
+:root[data-theme='dark'] .mini-calendar-nav,
+:root[data-theme='dark'] .btn-close {
+  background: #1a2b39;
+  color: var(--text-primary);
+}
+
+:root[data-theme='dark'] .btn-secondary,
+:root[data-theme='dark'] .btn-status,
+:root[data-theme='dark'] .btn-edit,
+:root[data-theme='dark'] .btn-delete {
+  background: #223748;
+  color: var(--text-primary);
+  border-color: #5c7b94;
 }
 
